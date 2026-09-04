@@ -4,6 +4,7 @@ import { curriculum } from '../data/curriculum';
 
 const ProgressContext = createContext(null);
 const STORAGE_KEY = 'devpath_roadmap_progress_v2';
+const CHALLENGE_CONTENT_VERSION = 2;
 
 export function ProgressProvider({ children }) {
   const [state, setState] = useState(() => {
@@ -11,6 +12,7 @@ export function ProgressProvider({ children }) {
       completedStages: [],
       currentStageId: roadmapCourse?.stages?.[0]?.id || 'js-1-variables-and-types',
       stageFiles: {},
+      challengeContentVersion: CHALLENGE_CONTENT_VERSION,
       completedLessons: [],
       checklistDone: {},
       projectSubmissions: {},
@@ -31,12 +33,17 @@ export function ProgressProvider({ children }) {
           
           const currentStageValid = validIds.has(parsed.currentStageId);
 
+          const hasCurrentChallengeContent = parsed.challengeContentVersion === CHALLENGE_CONTENT_VERSION;
+
           return {
             ...defaultState,
             ...parsed,
-            completedStages: completed,
-            currentStageId: currentStageValid ? parsed.currentStageId : defaultState.currentStageId,
-            stageFiles: parsed.stageFiles && typeof parsed.stageFiles === 'object' ? parsed.stageFiles : {},
+            // A versão anterior abria vários desafios com a solução pronta.
+            // Invalidamos somente esse progresso e preservamos lições/projetos.
+            completedStages: hasCurrentChallengeContent ? completed : [],
+            currentStageId: hasCurrentChallengeContent && currentStageValid ? parsed.currentStageId : defaultState.currentStageId,
+            stageFiles: hasCurrentChallengeContent && parsed.stageFiles && typeof parsed.stageFiles === 'object' ? parsed.stageFiles : {},
+            challengeContentVersion: CHALLENGE_CONTENT_VERSION,
             completedLessons: Array.isArray(parsed.completedLessons) ? parsed.completedLessons : [],
             checklistDone: parsed.checklistDone && typeof parsed.checklistDone === 'object' ? parsed.checklistDone : {},
             projectSubmissions: parsed.projectSubmissions && typeof parsed.projectSubmissions === 'object' ? parsed.projectSubmissions : {},

@@ -1965,5 +1965,89 @@ render();
   ]
 };
 
+// Códigos iniciais dos desafios. Eles são mantidos separados dos exemplos da
+// aula para que abrir ou restaurar um exercício nunca entregue a solução.
+const starterCodeByStage = {
+  "js-1-variables-and-types": `// Declare nomeInstrutor e anosExperiencia abaixo.
+// Depois, mostre os dois valores com console.log().
+
+`,
+  "js-2-template-literals": `// Crie formatarBoasVindas(nome, curso) usando template literals.
+function formatarBoasVindas(nome, curso) {
+  // Seu código aqui
+}
+`,
+  "js-3-conditionals-and-strict-equality": `// Classifique a nota conforme as regras do desafio.
+function classificarNota(nota) {
+  // Seu código aqui
+}
+`,
+  "js-4-arrow-functions-defaults": `// Crie a arrow function calcularPrecoFinal.
+// Lembre-se de definir o valor padrão da taxa.
+
+`,
+  "js-5-mini-project-calculator": `function dividirConta(valorTotal, porcentagemGorjeta, numPessoas) {
+  // Calcule e retorne totalComGorjeta e valorPorPessoa.
+}
+`,
+  "js-6-arrays-iteration-methods": `let tarefas = ['Aprender JS', 'Praticar no IDE'];
+
+// Adicione a nova tarefa e guarde o tamanho do array em total.
+`,
+  "js-7-arrays-functional-map-filter": `const precos = [10, 25, 60, 80, 120];
+
+// Crie precosComDesconto e apenasCaros sem alterar precos.
+`,
+  "js-8-array-reduce-superpower": `const valores = [10, 20, 30, 40];
+
+// Use reduce() para criar somaTotal.
+`,
+  "js-9-dom-selection-manipulation": `// Selecione #status, altere seu texto e adicione a classe pedida.
+`,
+  "js-10-dom-events-and-forms": `const form = document.querySelector('#meu-form');
+const input = document.querySelector('#meu-input');
+const mensagem = document.querySelector('#mensagem');
+
+// Trate o evento submit aqui.
+`,
+  "js-11-dom-dynamic-creation-list": `function renderizarFrutas(listaDeFrutas) {
+  // Limpe a lista e crie um <li> para cada fruta.
+}
+
+renderizarFrutas(['Abacaxi', 'Manga', 'Morango']);
+`,
+  "js-12-localstorage-json": `function salvarPerfil(nome, nivel) {
+  // Monte o objeto e salve-o como JSON.
+}
+`,
+  "js-13-timers-interval": `const display = document.querySelector('#segundos');
+let contador = 0;
+
+// Atualize contador e display a cada segundo.
+`,
+  "js-14-async-await-promises": `async function simularLogin(usuario, senha) {
+  // Retorne o resultado de autenticação conforme a senha.
+}
+`,
+  "js-15-fetch-api-live": `async function buscarPerfilGitHub(username) {
+  // Busque o perfil, converta a resposta em JSON e retorne os dados.
+}
+`,
+  "js-16-classes-oop-inheritance": `class Produto {
+  // Implemente o constructor e calcularImposto().
+}
+`
+};
+
+jsRoadmapCourse.stages.forEach((stage) => {
+  const starterCode = starterCodeByStage[stage.id];
+  if (starterCode !== undefined) {
+    stage.playground.files = {
+      ...stage.playground.files,
+      "script.js": starterCode
+    };
+  }
+});
+
 // Aliases para compatibilidade
 export const roadmapCourse = jsRoadmapCourse;

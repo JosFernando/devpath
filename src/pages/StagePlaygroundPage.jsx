@@ -109,7 +109,9 @@ function StageWorkspace({ stage }) {
   const [instructionTab, setInstructionTab] = useState(() => searchParams.get('tab') || 'lesson');
   const [taskResults, setTaskResults] = useState({});
   const [isRunning, setIsRunning] = useState(false);
-  const [allPassed, setAllPassed] = useState(() => stage ? isStageCompleted(stage.id) : false);
+  // Uma etapa salva como concluída não deve aparecer validada antes de o aluno
+  // executar o código desta sessão.
+  const [allPassed, setAllPassed] = useState(false);
   const [logs, setLogs] = useState(() => [{ time: new Date().toLocaleTimeString(), level: 'info', msg: 'Ambiente pronto. Leia a aula e execute o desafio quando estiver preparado.' }]);
   const [showSuccess, setShowSuccess] = useState(false);
   const iframeRef = useRef(null);
