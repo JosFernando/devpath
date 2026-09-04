@@ -1,10 +1,8 @@
-<div align="center">
+﻿<div align="center">
 
-  <img src="./docs/images/devpath-banner.jpg" alt="DevPath Banner" width="100%" />
+  <img src="./docs/images/platform-roadmap.png" alt="DevPath Platform Overview" width="100%" style="border-radius: 8px; border: 1px solid #e5e5e5;" />
 
   <br/><br/>
-
-  <img src="./docs/images/devpath-logo.jpg" alt="DevPath Logo" width="100" height="100" style="border-radius: 20px;" />
 
   # DevPath
   ### The Interactive Developer Roadmap & Hands-On Coding Platform
@@ -29,14 +27,37 @@
 
 ## 🌟 Overview
 
-**DevPath** is an open-source, hands-on learning platform designed to bridge the gap between passive tutorial watching and true software engineering competence. 
+**DevPath** is an open-source, hands-on learning platform designed to bridge the gap between passive tutorial watching and true software engineering competence.
 
 Instead of reading dry theory or getting overwhelmed by disconnected exercises, DevPath takes learners on an **interactive, milestone-driven journey**. Each stage pairs in-depth architectural concepts with a full-fledged in-browser code editor, interactive terminal execution, automated validation assertions, and progressive guidance.
 
+---
+
+## 📸 Platform Screenshots
+
+### 1. Hands-On Interactive Playground & Monaco Code Editor
+Rich in-browser coding environment powered by Monaco Editor (VS Code), featuring syntax highlighting, multi-file support (script.js, index.html, style.css), deep lessons, and live interactive console output.
+
 <div align="center">
-  <img src="./docs/images/editor-preview.jpg" alt="DevPath Interactive Editor Preview" width="90%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" />
-  <br/>
-  <em>Interactive coding playground with automated test validation and live terminal output</em>
+  <img src="./docs/images/platform-playground.png" alt="DevPath Interactive Playground" width="100%" style="border-radius: 8px; border: 1px solid #e5e5e5;" />
+</div>
+
+<br/>
+
+### 2. Live Automated Validation & Challenge Checklist
+Each milestone provides clear objectives, progressive hints, and automated assertions that test code validity on demand (Ctrl + Enter).
+
+<div align="center">
+  <img src="./docs/images/platform-challenge.png" alt="DevPath Challenge & Checklist" width="100%" style="border-radius: 8px; border: 1px solid #e5e5e5;" />
+</div>
+
+<br/>
+
+### 3. Visual Roadmap & Modular Curriculum
+Structured milestone track taking developers step-by-step from core language fundamentals to advanced asynchronous patterns and OOP.
+
+<div align="center">
+  <img src="./docs/images/platform-roadmap.png" alt="DevPath Roadmap & Modules" width="100%" style="border-radius: 8px; border: 1px solid #e5e5e5;" />
 </div>
 
 ---
@@ -44,13 +65,13 @@ Instead of reading dry theory or getting overwhelmed by disconnected exercises, 
 ## ✨ Key Features
 
 - **🗺️ Visual Learning Roadmap:** Structured progression path dividing complex subjects into bite-sized, sequential milestones.
-- **💻 Monaco Editor (VS Code in the Browser):** Powered by the same engine as Visual Studio Code, offering syntax highlighting, autocompletion, intelligent diagnostics, and keyboard shortcuts (`Ctrl/Cmd + Enter` to run).
-- **🧪 Automated In-Browser Test Runner:** Validates solutions instantly against multiple automated unit test cases and dynamic assertions.
-- **🖥️ Live Interactive Console:** Custom in-browser terminal capturing `console.log`, output evaluation, errors, and success statuses in real time.
+- **💻 Monaco Editor (VS Code in the Browser):** Powered by the same engine as Visual Studio Code, offering syntax highlighting, autocompletion, intelligent diagnostics, and keyboard shortcuts (Ctrl/Cmd + Enter to run).
+- **🧪 Automated In-Browser Test Runner:** Validates solutions instantly against automated unit test cases and dynamic runtime assertions.
+- **🖥️ Live Interactive Console:** Custom in-browser terminal capturing console.log, output evaluation, errors, and success statuses in real time.
 - **📋 Step-by-step Validation Checklist:** Clear criteria for what constitutes a passing solution, guiding developers without spoiling the challenge.
 - **💡 Progressive Hint System:** Tiered hints and curated external resources (MDN, JavaScript.info) when you need an extra nudge.
-- **💾 Automatic Progress Tracking:** Clean, resilient local persistence using browser storage (`localStorage`) with full course reset support.
-- **🎨 Modern, Minimalist UI:** Built with Tailwind CSS v4, sleek dark-mode editor surfaces, and smooth transitions.
+- **💾 Automatic Progress Tracking:** Clean, resilient local persistence using browser storage (localStorage) with full course reset support.
+- **🎨 Modern, Minimalist UI:** Built with Tailwind CSS v4, responsive layout, dark-mode editor surfaces, and smooth transitions.
 
 ---
 
@@ -60,12 +81,12 @@ The platform features a comprehensive, zero-to-advanced curriculum:
 
 | Module | Title | Topics Covered |
 | :--- | :--- | :--- |
-| **01** | **Language Fundamentals** | Modern variables (`const`, `let`), primitives, scopes, operators & conditionals |
+| **01** | **Language Fundamentals** | Modern variables (const, let), primitives, scopes, operators & conditionals |
 | **02** | **Functions & Scope** | Function declarations, arrow functions, default parameters, lexical scope |
-| **03** | **Arrays & Data Structures** | Array manipulation, functional methods (`map`, `filter`, `reduce`), objects |
+| **03** | **Arrays & Data Structures** | Array manipulation, functional methods (map, ilter, educe), objects |
 | **04** | **The DOM & Browser Events** | Node selection, dynamic attribute & class manipulation, event listeners |
-| **05** | **Web APIs & Persistence** | Browser `localStorage`, JSON serialization, asynchronous timers (`setInterval`) |
-| **06** | **Asynchronous JavaScript & REST** | Promises, `async`/`await`, error handling, API communication with `fetch()` |
+| **05** | **Web APIs & Persistence** | Browser localStorage, JSON serialization, asynchronous timers (setInterval) |
+| **06** | **Asynchronous JavaScript & REST** | Promises, sync/wait, error handling, API communication with etch() |
 | **07** | **OOP & Advanced Patterns** | ES6 Classes, inheritance, private fields, closures & Capstone Project |
 
 ---
@@ -87,49 +108,49 @@ The platform features a comprehensive, zero-to-advanced curriculum:
 ### Prerequisites
 
 Ensure you have the following installed on your machine:
-- **Node.js**: `v18.0.0` or higher
-- **npm** (or `pnpm` / `yarn`)
+- **Node.js**: 18.0.0 or higher
+- **npm** (or pnpm / yarn)
 
 ### Installation
 
 1. **Clone the repository:**
-   ```bash
+   `ash
    git clone https://github.com/JosFernando/devpath.git
    cd devpath
-   ```
+   `
 
 2. **Install dependencies:**
-   ```bash
+   `ash
    npm install
-   ```
+   `
 
 3. **Start the local development server:**
-   ```bash
+   `ash
    npm run dev
-   ```
+   `
 
 4. **Open in browser:**
-   Navigate to [http://localhost:5173](http://localhost:5173) to start exploring the roadmaps!
+   Navigate to [http://localhost:5173](http://localhost:5173) to start exploring the roadmap!
 
 ### Building for Production
 
 To create an optimized production build:
-```bash
+`ash
 npm run build
-```
+`
 You can preview the production bundle locally with:
-```bash
+`ash
 npm run preview
-```
+`
 
 ---
 
 ## 📁 Project Structure
 
-```text
+`	ext
 devpath/
-├── docs/                      # Documentation assets & images
-│   └── images/                # Banner, logos and UI preview mockups
+├── docs/                      # Documentation assets & platform screenshots
+│   └── images/                # Real captured platform UI screenshots
 ├── public/                    # Static assets, favicon and icons
 ├── src/
 │   ├── assets/                # Images and SVG icons
@@ -148,7 +169,7 @@ devpath/
 │   └── main.jsx               # React DOM entrypoint
 ├── package.json               # Dependencies and scripts
 └── vite.config.js             # Vite configuration
-```
+`
 
 ---
 
@@ -157,9 +178,9 @@ devpath/
 Contributions, feature requests, and curriculum additions are warmly welcomed!
 
 1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'feat: add some amazing feature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
+2. Create your Feature Branch (git checkout -b feature/AmazingFeature)
+3. Commit your Changes (git commit -m 'feat: add some amazing feature')
+4. Push to the Branch (git push origin feature/AmazingFeature)
 5. Open a Pull Request
 
 ---

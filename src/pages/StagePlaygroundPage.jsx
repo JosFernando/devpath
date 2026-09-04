@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -102,10 +102,11 @@ function StageWorkspace({ stage }) {
   const navigate = useNavigate();
   const { isStageCompleted, completeStage, getStageFiles, saveStageFiles, resetStageFiles } = useProgress();
 
+  const [searchParams] = useSearchParams();
   const [files, setFiles] = useState(() => stage ? getStageFiles(stage.id) : {});
   const [activeFile, setActiveFile] = useState(() => stage?.playground.activeFile || 'script.js');
   const [mobileTab, setMobileTab] = useState('lesson');
-  const [instructionTab, setInstructionTab] = useState('lesson');
+  const [instructionTab, setInstructionTab] = useState(() => searchParams.get('tab') || 'lesson');
   const [taskResults, setTaskResults] = useState({});
   const [isRunning, setIsRunning] = useState(false);
   const [allPassed, setAllPassed] = useState(() => stage ? isStageCompleted(stage.id) : false);
