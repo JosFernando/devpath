@@ -10,7 +10,12 @@ import {
   Code2,
   Copy,
   ExternalLink,
+  GripVertical,
   Library,
+  Maximize2,
+  Minimize2,
+  PanelLeftClose,
+  PanelRight,
   Target,
   Terminal,
 } from 'lucide-react';
@@ -107,6 +112,9 @@ function StageWorkspace({ stage }) {
   const [activeFile, setActiveFile] = useState(() => stage?.playground.activeFile || 'script.js');
   const [mobileTab, setMobileTab] = useState('lesson');
   const [instructionTab, setInstructionTab] = useState(() => searchParams.get('tab') || 'lesson');
+  const [studyPanelMode, setStudyPanelMode] = useState('normal');
+  const [studyPanelSide, setStudyPanelSide] = useState('left');
+  const [studyPanelWidth, setStudyPanelWidth] = useState(420);
   const [taskResults, setTaskResults] = useState({});
   const [isRunning, setIsRunning] = useState(false);
   // Uma etapa salva como concluída não deve aparecer validada antes de o aluno
@@ -116,6 +124,7 @@ function StageWorkspace({ stage }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const iframeRef = useRef(null);
   const capturedLogsRef = useRef([]);
+  const workspaceRef = useRef(null);
 
   const tasks = useMemo(() => {
     if (!stage) return [];
@@ -182,6 +191,31 @@ function StageWorkspace({ stage }) {
     setTaskResults({});
     setAllPassed(false);
     setLogs((current) => [...current, { time: new Date().toLocaleTimeString(), level: 'warn', msg: 'Código restaurado para a versão inicial.' }]);
+  };
+
+  const startStudyPanelResize = (event) => {
+    if (studyPanelMode !== 'normal') return;
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = studyPanelWidth;
+    const direction = studyPanelSide === 'left' ? 1 : -1;
+
+    const handlePointerMove = (moveEvent) => {
+      const workspaceWidth = workspaceRef.current?.getBoundingClientRect().width || window.innerWidth;
+      const nextWidth = startWidth + ((moveEvent.clientX - startX) * direction);
+      setStudyPanelWidth(Math.min(Math.max(nextWidth, 300), workspaceWidth * 0.7));
+    };
+    const stopResize = () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', stopResize);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', stopResize);
   };
 
   const handleEvaluate = (expression) => {
@@ -304,8 +338,23 @@ function StageWorkspace({ stage }) {
         ].map((tab) => <button key={tab.id} type="button" onClick={() => setMobileTab(tab.id)} className={`flex items-center justify-center gap-1.5 border-b-2 text-[10px] font-bold uppercase tracking-wider ${mobileTab === tab.id ? 'border-neutral-950 text-neutral-950' : 'border-transparent text-neutral-400'}`}><tab.icon className="h-3.5 w-3.5" />{tab.label}</button>)}
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-12">
-        <aside className={`${mobileTab === 'lesson' ? 'flex' : 'hidden'} min-h-0 flex-col border-r border-neutral-200 bg-white lg:col-span-4 lg:flex xl:col-span-3`}>
+      <div ref={workspaceRef} className="relative flex min-h-0 flex-1 flex-col lg:flex-row">
+        <aside
+          className={`${mobileTab === 'lesson' ? 'flex' : 'hidden'} ${studyPanelSide === 'right' ? 'lg:order-3 lg:border-l' : 'lg:order-1 lg:border-r'} relative min-h-0 max-lg:!w-full flex-col border-neutral-200 bg-white lg:flex ${studyPanelMode === 'maximized' ? 'lg:absolute lg:inset-0 lg:z-40 lg:w-full' : ''}`}
+          style={studyPanelMode === 'normal' ? { width: `${studyPanelWidth}px`, flex: '0 0 auto' } : studyPanelMode === 'minimized' ? { width: '52px', flex: '0 0 auto' } : undefined}
+        >
+          <div className="hidden h-10 shrink-0 items-center justify-between border-b border-neutral-200 bg-white pl-3 lg:flex">
+            <div className={`${studyPanelMode === 'minimized' ? 'hidden' : 'flex'} min-w-0 items-center gap-2`}>
+              <GripVertical className="h-3.5 w-3.5 text-neutral-400" />
+              <span className="truncate text-[9px] font-bold uppercase tracking-[0.14em] text-neutral-500">Zona de aula e desafios</span>
+            </div>
+            <div className="ml-auto flex h-full items-center">
+              {studyPanelMode !== 'minimized' && <button type="button" onClick={() => setStudyPanelSide((side) => side === 'left' ? 'right' : 'left')} className="grid h-full w-9 place-items-center text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950" title={`Encostar à ${studyPanelSide === 'left' ? 'direita' : 'esquerda'}`} aria-label={`Encostar painel à ${studyPanelSide === 'left' ? 'direita' : 'esquerda'}`}><PanelRight className={`h-3.5 w-3.5 ${studyPanelSide === 'right' ? 'rotate-180' : ''}`} /></button>}
+              <button type="button" onClick={() => setStudyPanelMode((mode) => mode === 'minimized' ? 'normal' : 'minimized')} className="grid h-full w-9 place-items-center text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950" title={studyPanelMode === 'minimized' ? 'Abrir zona de aula' : 'Reduzir zona de aula'} aria-label={studyPanelMode === 'minimized' ? 'Abrir zona de aula' : 'Reduzir zona de aula'}>{studyPanelMode === 'minimized' ? <BookOpen className="h-4 w-4" /> : <PanelLeftClose className="h-3.5 w-3.5" />}</button>
+              {studyPanelMode !== 'minimized' && <button type="button" onClick={() => setStudyPanelMode((mode) => mode === 'maximized' ? 'normal' : 'maximized')} className="grid h-full w-9 place-items-center text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950" title={studyPanelMode === 'maximized' ? 'Restaurar tamanho' : 'Maximizar zona de aula'} aria-label={studyPanelMode === 'maximized' ? 'Restaurar tamanho' : 'Maximizar zona de aula'}>{studyPanelMode === 'maximized' ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}</button>}
+            </div>
+          </div>
+          <div className={studyPanelMode === 'minimized' ? 'hidden' : 'contents'}>
           <div className="grid h-11 shrink-0 grid-cols-3 border-b border-neutral-200 bg-[#f7f7f5] p-1">
             {[
               { id: 'lesson', label: '1. Aula' },
@@ -322,6 +371,10 @@ function StageWorkspace({ stage }) {
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-500"><Target className="h-3.5 w-3.5" /> Sua tarefa</div>
                   <p className="mt-3 text-sm font-semibold leading-6 text-neutral-950"><InlineText text={stage.instruction.taskDescription} /></p>
                   <div className="mt-4 flex items-center gap-2 border-y border-neutral-200 py-3 text-[10px] text-neutral-500"><Clock3 className="h-3.5 w-3.5" /> Tempo estimado: {stage.estimatedMinutes} minutos</div>
+                </div>
+                <div className="mb-4 border border-neutral-200 bg-[#f7f7f5] p-3 text-xs leading-5 text-neutral-600">
+                  <strong className="block text-[10px] uppercase tracking-wider text-neutral-950">Como avançar</strong>
+                  Leia cada requisito, implemente no editor e use <strong>Executar código</strong>. Se algo falhar, verá uma indicação específica e poderá abrir uma dica em cada passo.
                 </div>
                 <ValidationChecklist tasks={tasks} taskResults={taskResults} allPassed={allPassed} onNextStage={() => nextStage && navigate(`/playground/${nextStage.id}`)} hasNextStage={Boolean(nextStage)} />
               </div>
@@ -340,13 +393,15 @@ function StageWorkspace({ stage }) {
               </div>
             )}
           </div>
+          </div>
+          {studyPanelMode === 'normal' && <button type="button" onPointerDown={startStudyPanelResize} className={`absolute top-0 z-20 hidden h-full w-3 cursor-col-resize touch-none items-center justify-center lg:flex ${studyPanelSide === 'left' ? '-right-1.5' : '-left-1.5'}`} title="Arrastar para redimensionar" aria-label="Redimensionar zona de aula"><span className="h-12 w-1 bg-neutral-300 transition hover:bg-neutral-950" /></button>}
         </aside>
 
-        <section className={`${mobileTab === 'code' ? 'flex' : 'hidden'} min-h-0 lg:col-span-5 lg:flex xl:col-span-6`}>
+        <section className={`${mobileTab === 'code' ? 'flex' : 'hidden'} min-h-0 min-w-0 flex-1 lg:order-2 lg:flex`}>
           <CodecademyEditor files={files} activeFile={activeFile} onFileChange={setActiveFile} onCodeChange={handleCodeChange} onResetFile={handleReset} onRun={handleRun} isRunning={isRunning} allPassed={allPassed} />
         </section>
 
-        <section className={`${mobileTab === 'output' ? 'flex' : 'hidden'} min-h-0 lg:col-span-3 lg:flex`}>
+        <section className={`${mobileTab === 'output' ? 'flex' : 'hidden'} min-h-0 min-w-0 lg:order-2 lg:flex lg:w-[28%] lg:flex-none`}>
           <InteractiveConsole logs={logs} onClearLogs={() => setLogs([])} onEvaluate={handleEvaluate} iframeRef={iframeRef} />
         </section>
       </div>
