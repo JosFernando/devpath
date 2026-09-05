@@ -6,6 +6,7 @@
 import { odinFoundationStageInsertions } from './odinFoundationStages.js';
 import { curriculumLessons } from './curriculumLessons.js';
 import { curriculumChecks } from './curriculumChecks.js';
+import { getBeginnerGuide } from './beginnerGuides.js';
 import { foundationInsertions, foundationModuleProjects } from './foundationExpansion.js';
 import { advancedModules, advancedStages } from './advancedExpansion.js';
 import { trainingPhases, foundationModuleDetails, existingProjectBriefs } from './trainingStructure.js';
@@ -2256,6 +2257,9 @@ jsRoadmapCourse.stages = [...jsRoadmapCourse.stages, ...advancedStages].map((sta
   ...(stage.id === 'js-17-grand-capstone-app' ? { title: 'Projeto do módulo: Gerenciador de tarefas', category: 'Projeto de módulo', estimatedMinutes: 120 } : {}),
 }));
 jsRoadmapCourse.phases = trainingPhases;
+jsRoadmapCourse.stages.forEach((stage) => {
+  stage.instruction.beginnerGuide = getBeginnerGuide(stage);
+});
 jsRoadmapCourse.title = 'Formação especializada em JavaScript: do zero ao Master';
 jsRoadmapCourse.description = 'Uma sequência de fundamentos, aplicações no navegador, arquitetura e qualidade, com desafios verificáveis e um projeto ao final de cada módulo.';
 

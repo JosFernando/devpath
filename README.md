@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
   <img src="./docs/images/platform-roadmap.png" alt="DevPath Platform Overview" width="100%" style="border-radius: 8px; border: 1px solid #e5e5e5;" />
 
@@ -58,6 +58,15 @@ Structured milestone track taking developers step-by-step from core language fun
 
 <div align="center">
   <img src="./docs/images/platform-roadmap.png" alt="DevPath Roadmap & Modules" width="100%" style="border-radius: 8px; border: 1px solid #e5e5e5;" />
+</div>
+
+<br/>
+
+### 4. Required Practical Module Projects
+Each module concludes with a hands-on project with explicit deliverables, milestones, and grading rubrics to consolidate real-world competence.
+
+<div align="center">
+  <img src="./docs/images/platform-project.png" alt="DevPath Module Project" width="100%" style="border-radius: 8px; border: 1px solid #e5e5e5;" />
 </div>
 
 ---

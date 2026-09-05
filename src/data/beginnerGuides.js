@@ -1,0 +1,262 @@
+// Exemplos pequenos e independentes do desafio: primeiro entender, depois construir.
+const guide = (idea, before, code, output, steps, mistake, practice, answer) => ({
+  idea, before, code, output, steps, mistake, practice, answer,
+});
+
+export const beginnerGuides = {
+  'js-1-variables-and-types': guide(
+    'Um programa é uma lista de instruções que o computador segue. Uma variável dá um nome a um valor, como uma etiqueta em uma caixa. Você usa esse nome para encontrar o valor depois.',
+    'Não precisa saber programar. Texto fica entre aspas; números ficam sem aspas. O console é o lugar onde podemos mostrar resultados para conferir o que aconteceu.',
+    'const nome = "Lia";\nlet pontos = 2;\npontos = pontos + 3;\nconsole.log(nome);\nconsole.log(pontos);', 'Lia\n5',
+    ['const nome guarda o texto "Lia". const impede trocar o valor dessa variável depois.', 'let pontos começa com 2. Use let quando precisar trocar o valor.', 'O computador calcula 2 + 3 e guarda 5 em pontos. Aqui, = significa guardar, não comparar.', 'console.log mostra um valor. Os parênteses contêm o que queremos mostrar; cada chamada aparece em uma linha.'],
+    '"2" é texto e 2 é número. "2" + 3 vira "23", enquanto 2 + 3 vira 5. // inicia um comentário: uma anotação que o computador não executa.',
+    'Se pontos começar com 4 e continuar recebendo mais 3, qual será o resultado?', '7. A conta será 4 + 3. O nome continuará sendo Lia.'),
+  'js-2-template-literals': guide(
+    'Você pode montar uma frase usando valores guardados. É como preencher os espaços de um convite: o texto continua igual e o nome muda.',
+    'Revise variáveis e textos. Uma string é apenas o nome técnico de um texto. A crase (`) é diferente das aspas simples.',
+    'const pessoa = "Bia";\nconst livros = 3;\nconsole.log(`${pessoa} leu ${livros} livros.`);', 'Bia leu 3 livros.',
+    ['pessoa guarda Bia e livros guarda 3.', 'As crases abrem e fecham a frase.', '${pessoa} e ${livros} são espaços preenchidos com os valores das variáveis. Isso se chama interpolação.'],
+    'Com aspas comuns, "${pessoa}" aparece literalmente. Use crases para preencher os espaços.',
+    'Troque pessoa por "Rui" e livros por 5. Como fica a frase?', 'Rui leu 5 livros.'),
+  'js-foundation-number-validation': guide(
+    'Um número digitado em um formulário costuma chegar como texto. Antes de fazer uma conta, transforme esse texto em número e confira se ele é permitido.',
+    'String significa texto. Converter é mudar o tipo do valor. Validar é conferir uma regra, por exemplo: uma idade não pode ser negativa.',
+    'const entrada = " 12 ";\nconst vazio = entrada.trim() === "";\nconst numero = Number(entrada);\nconsole.log(vazio);\nconsole.log(Number.isFinite(numero));\nconsole.log(numero + 2);', 'false\ntrue\n14',
+    ['trim() remove espaços das pontas. A comparação com "" verifica se sobrou algum texto.', 'Number transforma " 12 " no número 12.', 'Number.isFinite confirma que o resultado é um número finito. true quer dizer sim; false, não.', 'Agora + faz uma soma: 12 + 2. Para exigir duas regras ao mesmo tempo, use &&; para aceitar uma ou outra, use ||. ! inverte sim e não.'],
+    'Number("") resulta em 0. Por isso, confira o vazio antes de aceitar a conversão. Number("oi") resulta em NaN, que indica uma conversão sem resultado numérico válido.',
+    'O que acontece ao trocar a entrada por "oi"?', 'vazio será false, Number.isFinite será false e a soma resultará em NaN. Essa entrada deve ser rejeitada.'),
+  'js-3-conditionals-and-strict-equality': guide(
+    'Uma condição permite escolher o que fazer. Pense na regra de um jogo: se tiver pontos suficientes, passa de fase; caso contrário, continua treinando.',
+    'Uma comparação produz true (verdadeiro) ou false (falso). >= significa maior ou igual. === compara o valor e o tipo.',
+    'const pontos = 8;\nif (pontos >= 10) {\n  console.log("Passou de fase");\n} else {\n  console.log("Continue treinando");\n}', 'Continue treinando',
+    ['pontos começa com 8.', 'if significa "se". A pergunta entre parênteses é: 8 é maior ou igual a 10?', 'Como a resposta é não, executamos o bloco de else, que significa "caso contrário". As chaves agrupam as instruções de cada caminho.'],
+    '= guarda um valor; === compara. 10 === "10" é false porque um é número e o outro é texto.',
+    'Qual mensagem aparece com exatamente 10 pontos?', 'Passou de fase. >= inclui o próprio 10.'),
+  'js-foundation-debugging': guide(
+    'Depurar é investigar por que o programa fez algo diferente do esperado. Como em um exercício de matemática, confira cada etapa da conta.',
+    'Use console.log para observar valores. typeof informa o tipo: string é texto e number é número.',
+    'const quantidade = "3";\nconsole.log(typeof quantidade);\nconsole.log(quantidade + 2);\nconsole.log(Number(quantidade) + 2);', 'string\n32\n5',
+    ['Queríamos somar 3 e 2, mas a entrada veio como texto.', 'O primeiro resultado confirma o tipo. O segundo mostra que + juntou os textos.', 'Ao converter com Number, a soma produz 5. Mude uma coisa por vez para saber qual alteração resolveu o erro.'],
+    'Alterar várias linhas sem conferir os resultados dificulta descobrir a causa. Anote: entrada, resultado esperado e resultado obtido.',
+    'Como testar se a correção também funciona para "0"?', 'Use Number("0") + 2. O resultado esperado é 2; zero não significa que o dado está ausente.'),
+  'js-4-arrow-functions-defaults': guide(
+    'Uma função é uma receita que você pode usar várias vezes. Ela recebe ingredientes (entradas), faz uma tarefa e pode entregar um resultado.',
+    'Parâmetro é o nome de uma entrada na receita. Argumento é o valor que você passa ao usar a função. return entrega o resultado para quem chamou.',
+    'const dobrar = (numero = 2) => {\n  return numero * 2;\n};\nconsole.log(dobrar(4));\nconsole.log(dobrar());', '8\n4',
+    ['A seta => define a função. numero é a entrada; 2 é o valor usado quando ela é omitida ou undefined.', 'return numero * 2 entrega o dobro. * significa multiplicação.', 'dobrar(4) usa 4 e devolve 8. dobrar() usa o valor padrão 2 e devolve 4.'],
+    'Mostrar com console.log não é o mesmo que devolver com return. Sem return nesse bloco, a função devolve undefined (nenhum resultado definido).',
+    'Quanto vale dobrar(0)?', '0. O valor padrão não substitui zero; a conta é 0 * 2.'),
+  'js-foundation-function-scope': guide(
+    'Cada função pode ter suas próprias variáveis. É como uma mochila: os objetos guardados dentro dela pertencem àquele espaço.',
+    'Escopo é a parte do programa onde um nome pode ser usado. Uma variável declarada dentro da função não pode ser lida diretamente de fora.',
+    'function somar(a, b) {\n  const total = a + b;\n  return total;\n}\nconsole.log(somar(2, 5));\nconsole.log(somar(1, 3));', '7\n4',
+    ['function cria uma função com nome. a e b recebem os valores de cada chamada.', 'total só existe dentro de somar. Cada chamada calcula seu próprio total.', 'return entrega esse total para fora. As chamadas não precisam mudar nenhuma variável externa.'],
+    'console.log(total) fora da função gera erro: esse nome só está disponível dentro dela.',
+    'Qual valor somar(0, 6) devolve?', '6. A função usa as entradas dessa chamada: 0 + 6.'),
+  'js-foundation-loops': guide(
+    'Um loop repete uma instrução. Em vez de escrever três vezes "mostre o próximo número", você descreve onde começar e quando parar.',
+    'Repetição também é chamada de laço. i++ soma 1 ao contador. <= significa menor ou igual.',
+    'for (let i = 1; i <= 3; i++) {\n  console.log(i);\n}', '1\n2\n3',
+    ['let i = 1 cria o contador uma única vez.', 'Antes de cada volta, i <= 3 verifica se podemos continuar.', 'O bloco mostra i. Depois, i++ aumenta o contador. Quando i chega a 4, a condição é falsa e o laço acaba.'],
+    'Se o contador nunca mudar, a condição pode continuar verdadeira para sempre. Confira sempre como o laço termina.',
+    'O que muda se usarmos i < 3?', 'Aparecem somente 1 e 2. < não inclui o número 3.'),
+  'odin-problem-solving-fizzbuzz': guide(
+    'Para resolver um problema, transforme o enunciado em pequenas regras. FizzBuzz combina contagem com decisões sobre múltiplos.',
+    'Um múltiplo de 3 pode ser dividido por 3 sem sobrar nada. O operador % calcula o resto de uma divisão.',
+    'console.log(8 % 2);\nconsole.log(9 % 2);\nconst numero = 12;\nconsole.log(numero % 2 === 0 && numero % 3 === 0);', '0\n1\ntrue',
+    ['8 dividido por 2 não deixa resto. 9 dividido por 2 deixa resto 1.', 'numero % 2 === 0 pergunta se 12 é múltiplo de 2.', '&& exige que as duas comparações sejam verdadeiras. No desafio, verifique primeiro o caso que atende às duas regras.'],
+    'Se testar apenas um múltiplo primeiro, você pode deixar de reconhecer o caso que é múltiplo dos dois números.',
+    'Por que 15 deve receber a resposta combinada no FizzBuzz de 3 e 5?', 'Porque 15 % 3 e 15 % 5 são ambos 0. As duas regras são atendidas.'),
+  'js-6-arrays-iteration-methods': guide(
+    'Um array é uma lista de valores em ordem, como uma lista de materiais escolares. Você pode adicionar, retirar e visitar os itens.',
+    'Os colchetes [] delimitam a lista. A posição de cada item se chama índice e começa em 0.',
+    'const materiais = ["lápis", "caderno"];\nmateriais.push("régua");\nconsole.log(materiais[0]);\nconsole.log(materiais.pop());\nconsole.log(materiais.length);', 'lápis\nrégua\n2',
+    ['A lista começa com dois itens. push adiciona régua ao final.', 'O índice 0 acessa o primeiro item, lápis.', 'pop retira e devolve o último item. length informa quantos itens restaram.', 'slice(0, 1) cria uma lista com o primeiro item sem retirar nada da original. forEach executa uma função para cada item.'],
+    'O último índice é length - 1. Uma lista com 2 itens tem posições 0 e 1, não 1 e 2.',
+    'Qual é materiais[1] ao final?', '"caderno". A régua foi removida e os dois itens originais continuam na lista.'),
+  'js-7-arrays-functional-map-filter': guide(
+    'map transforma cada item de uma lista. filter seleciona os itens que passam por uma regra. É como dobrar todos os preços ou separar apenas os baratos.',
+    'Revise arrays e funções com seta. Callback é uma função que entregamos a outra operação para ela chamar.',
+    'const valores = [2, 5, 8];\nconsole.log(valores.map(valor => valor * 2));\nconsole.log(valores.filter(valor => valor >= 5));\nconsole.log(valores);', '[4, 10, 16]\n[5, 8]\n[2, 5, 8]',
+    ['map chama a função uma vez para cada valor. O retorno vira o item da nova lista.', 'filter mantém o valor original quando a comparação retorna true.', 'Essas operações criam novas listas. Neste exemplo, a lista original não muda. A aparência dos colchetes no console pode variar.'],
+    'map não remove itens. filter não transforma 5 em outro número. Escolha a operação de acordo com a tarefa.',
+    'Qual resultado valores.filter(valor => valor < 5) produz?', '[2]. Só o número 2 é menor que 5.'),
+  'js-8-array-reduce-superpower': guide(
+    'reduce reúne os itens de uma lista em um resultado. Imagine somar as moedas de um cofrinho, mantendo um total parcial.',
+    'Acumulador é o nome dado a esse total parcial. Revise arrays e return antes de continuar.',
+    'const moedas = [2, 3, 1];\nconst total = moedas.reduce((soma, moeda) => {\n  return soma + moeda;\n}, 0);\nconsole.log(total);', '6',
+    ['O 0 depois da função é o total inicial.', 'Primeira moeda: 0 + 2 = 2. Segunda: 2 + 3 = 5. Terceira: 5 + 1 = 6.', 'return entrega o novo total para a próxima volta. Ao terminar, reduce devolve 6.'],
+    'Sem o 0 inicial, uma lista vazia causa erro. Sem return no bloco, o próximo total fica undefined.',
+    'Quanto esse reduce devolve para []?', '0. Sem moedas para somar, o total continua sendo o valor inicial.'),
+  'odin-object-basics': guide(
+    'Um objeto reúne informações sobre uma coisa. Pense na ficha de um livro, com título e número de páginas.',
+    'Propriedade é um campo da ficha. Método é uma função guardada no objeto. this, na chamada livro.descrever(), aponta para livro.',
+    'const livro = {\n  titulo: "Aventura",\n  paginas: 80,\n  descrever() { return this.titulo; }\n};\nconsole.log(livro.paginas);\nconsole.log(livro.descrever());', '80\nAventura',
+    ['As chaves delimitam o objeto. Cada propriedade tem um nome e um valor separados por :.', 'livro.paginas acessa uma informação.', 'livro.descrever() executa o método, que lê o título do próprio livro.'],
+    'const outro = livro não copia a ficha. Os dois nomes passam a acessar o mesmo objeto.',
+    'Após livro.titulo = "Mistério", o que descrever() retorna?', '"Mistério", porque this.titulo lê o título atual do objeto.'),
+  'js-foundation-semantic-html': guide(
+    'HTML descreve as partes de uma página. É como organizar um texto com título, parágrafo e campos para preencher.',
+    'Uma tag marca um elemento: <p> começa um parágrafo e </p> o termina. Um atributo acrescenta uma informação dentro da tag de abertura.',
+    '<form>\n  <label for="apelido">Seu apelido</label>\n  <input id="apelido" name="apelido" required>\n  <button type="submit">Enviar</button>\n</form>', 'A página mostra o rótulo “Seu apelido”, um campo de texto e um botão “Enviar”.',
+    ['form agrupa os campos de um formulário.', 'label dá um nome visível ao campo. for="apelido" combina com id="apelido" e associa os dois.', 'input recebe texto. required indica que o campo precisa ser preenchido antes do envio normal.', 'button cria um botão que também pode ser usado pelo teclado. Este exemplo é HTML: veja o resultado na página, não no console.'],
+    'Um texto de exemplo dentro do campo (placeholder) não substitui o rótulo: ele desaparece quando a pessoa digita.',
+    'Se o id do campo mudar para "nome", o que mais deve mudar?', 'O for do label também deve virar "nome", mantendo a associação.'),
+  'js-foundation-css-layout': guide(
+    'CSS cuida da aparência da página: cores, tamanhos e posição dos elementos. Cada elemento ocupa uma caixa.',
+    'Um seletor escolhe o que será estilizado. .cartao seleciona elementos com class="cartao". Padding é espaço interno; margin é espaço externo.',
+    '.cartao {\n  padding: 16px;\n  border: 1px solid black;\n  margin: 8px;\n  max-width: 100%;\n}', 'Um elemento com class="cartao" ganha espaço interno, uma borda preta e espaço ao redor.',
+    ['A regra vai no arquivo style.css. Para enxergar o efeito, precisa existir um elemento com essa classe no HTML.', 'padding afasta o conteúdo da borda. border desenha a borda. margin afasta a caixa das vizinhas.', 'max-width limita a largura. Com box-sizing: border-box, largura inclui borda e padding.', 'Para colocar filhos lado a lado, use display: flex no elemento pai; gap controla o espaço entre eles e flex-wrap: wrap permite quebrar a linha.'],
+    'Uma largura fixa muito grande pode ultrapassar a tela do celular. Confira o resultado em uma tela estreita.',
+    'Qual propriedade dá mais espaço entre o texto e a borda?', 'padding. Por exemplo, padding: 24px aumenta o espaço interno.'),
+  'js-9-dom-selection-manipulation': guide(
+    'O navegador transforma o HTML em elementos que o JavaScript pode encontrar e alterar. Essa representação da página se chama DOM.',
+    'Um seletor é uma forma de localizar elementos. #recado procura o elemento com id="recado".',
+    '// No HTML: <p id="recado">Olá</p>\nconst recado = document.querySelector("#recado");\nrecado.textContent = "Bem-vindo!";\nrecado.classList.add("destaque");', 'O parágrafo passa a mostrar “Bem-vindo!” e recebe a classe destaque.',
+    ['Crie o parágrafo no index.html antes de executar o JavaScript.', 'document representa a página. querySelector encontra o primeiro elemento que combina com o seletor.', 'textContent troca o texto. classList.add adiciona uma classe; a aparência só muda se houver uma regra CSS para ela.'],
+    'Se o elemento não existir, querySelector retorna null. Confira o id e se o HTML já foi carregado antes de usar textContent.',
+    'Como mudar a mensagem para "Boa leitura"?', 'Use recado.textContent = "Boa leitura"; depois de encontrar o parágrafo.'),
+  'js-10-dom-events-and-forms': guide(
+    'Um evento avisa que algo aconteceu na página, como um clique ou o envio de um formulário. Seu código pode reagir a esse aviso.',
+    'addEventListener registra uma função para executar quando o evento acontecer. submit é o evento de envio de um formulário.',
+    '// HTML: <form id="busca"><button>Buscar</button></form>\nconst form = document.querySelector("#busca");\nform.addEventListener("submit", (evento) => {\n  evento.preventDefault();\n  console.log("Vamos buscar!");\n});', 'Ao enviar o formulário: Vamos buscar!',
+    ['Coloque o formulário do comentário no HTML. O JavaScript encontra esse formulário.', 'A função dentro de addEventListener fica aguardando o envio.', 'preventDefault impede a ação padrão de navegação do formulário. Assim podemos tratar os dados na própria página.', 'A mensagem aparece a cada envio, não no momento em que registramos a função.'],
+    'Escutar só o clique do botão pode deixar de tratar outras formas de envio. Escute submit no formulário.',
+    'A mensagem aparece antes de clicar em Buscar?', 'Não. Registrar a função não a executa; ela roda quando o formulário é enviado.'),
+  'js-11-dom-dynamic-creation-list': guide(
+    'Você pode criar elementos pelo JavaScript. É útil quando a lista da página depende de dados, como tarefas adicionadas pela pessoa.',
+    'createElement cria um elemento em memória. appendChild coloca esse elemento dentro de outro.',
+    '// HTML: <ul id="tarefas"></ul>\nconst lista = document.querySelector("#tarefas");\nconst item = document.createElement("li");\nitem.textContent = "Ler 10 páginas";\nlista.appendChild(item);', 'A lista da página passa a ter um item: Ler 10 páginas.',
+    ['Adicione a ul ao HTML. Ela será o lugar onde o item aparece.', 'createElement("li") cria um item de lista, ainda fora da página.', 'textContent preenche o texto. appendChild insere o item na lista.'],
+    'Criar o elemento não basta para mostrá-lo. É preciso inseri-lo. Ao redesenhar uma lista inteira, evite duplicar os itens anteriores.',
+    'Como adicionar uma segunda tarefa?', 'Crie outro li, preencha seu textContent e chame lista.appendChild com esse novo elemento.'),
+  'js-12-localstorage-json': guide(
+    'localStorage guarda pequenos textos no navegador, mesmo depois de recarregar a página. JSON transforma listas e objetos em texto para poder guardá-los.',
+    'Uma chave é o nome usado para encontrar o dado salvo. stringify transforma em texto JSON; parse lê esse texto de volta.',
+    'const temas = ["HTML", "CSS"];\nlocalStorage.setItem("temas", JSON.stringify(temas));\nconst texto = localStorage.getItem("temas");\nconst recuperados = JSON.parse(texto);\nconsole.log(recuperados[0]);', 'HTML',
+    ['stringify transforma a lista em um texto que representa seus itens.', 'setItem guarda esse texto com a chave temas. getItem recupera o texto.', 'parse reconstrói a lista. O índice 0 acessa HTML. No DevPath, o armazenamento do exercício fica separado por etapa.'],
+    'Um texto salvo pode estar ausente ou inválido. Em um aplicativo completo, trate esses casos antes de usar os dados.',
+    'O que acontece se mostrarmos recuperados[1]?', 'Aparece CSS, o segundo item da lista.'),
+  'js-foundation-safe-storage': guide(
+    'Dados guardados podem estar quebrados ou em um formato antigo. Ler com cuidado evita que uma informação ruim impeça a página de abrir.',
+    'try tenta executar um bloco. catch recebe um erro desse bloco e permite escolher uma alternativa. Array.isArray verifica se o valor é uma lista.',
+    'let lista = [];\ntry {\n  const dado = JSON.parse("texto quebrado");\n  if (Array.isArray(dado)) lista = dado;\n} catch {\n  console.log("Não foi possível ler; começamos com uma lista vazia.");\n}\nconsole.log(lista.length);', 'Não foi possível ler; começamos com uma lista vazia.\n0',
+    ['Começamos com uma lista vazia, que é uma alternativa conhecida.', 'parse tenta ler um texto que não é JSON válido e lança um erro.', 'catch trata esse erro. O programa continua e mostra que a lista tem zero itens.', 'Mesmo JSON válido pode ter o formato errado. Por isso também verificamos Array.isArray.'],
+    'Não basta conseguir fazer parse: um número como 7 é JSON válido, mas não é uma lista de tarefas.',
+    'Se o texto for "7", catch será executado?', 'Não. 7 é JSON válido. Array.isArray será false e a lista continuará vazia.'),
+  'js-13-timers-interval': guide(
+    'Um temporizador agenda uma tarefa. setInterval repete a tarefa em intervalos; clearInterval manda parar.',
+    'O tempo é dado em milissegundos: 1000 ms equivalem a 1 segundo. A função agendada será chamada depois.',
+    'let voltas = 0;\nconst id = setInterval(() => {\n  voltas++;\n  console.log(voltas);\n  if (voltas === 3) clearInterval(id);\n}, 1000);', '1\n2\n3 (uma mensagem por intervalo, aproximadamente a cada segundo)',
+    ['voltas começa em zero. Guardamos em id a identificação do temporizador.', 'Em cada execução, aumentamos voltas e mostramos seu valor.', 'Quando chega a 3, clearInterval encerra as repetições. O tempo real pode variar se o navegador estiver ocupado.'],
+    'Iniciar vários intervalos sem parar os antigos faz a tarefa se repetir mais vezes do que o esperado.',
+    'Qual número aparece por último se a condição for voltas === 2?', '2. O intervalo é cancelado na segunda execução.'),
+  'js-14-async-await-promises': guide(
+    'Algumas tarefas não terminam na hora. Uma Promise representa um resultado que pode chegar depois ou falhar, como um pedido que está sendo preparado.',
+    'Assíncrono significa que não precisamos bloquear toda a página enquanto esperamos. async permite usar await dentro da função.',
+    'async function mostrar() {\n  console.log("Aguardando");\n  const mensagem = await Promise.resolve("Pronto");\n  console.log(mensagem);\n}\nmostrar();\nconsole.log("Página livre");', 'Aguardando\nPágina livre\nPronto',
+    ['mostrar começa e escreve Aguardando.', 'Promise.resolve cria uma promessa já resolvida. Mesmo assim, await pausa a continuação dessa função.', 'O código de fora continua e mostra Página livre. Depois a função retoma com o resultado Pronto.'],
+    'await não congela toda a página. Se a promessa falhar, trate o erro com try/catch.',
+    'Por que Página livre aparece antes de Pronto?', 'Porque await adia a continuação da função, permitindo que o restante do código execute primeiro.'),
+  'js-15-fetch-api-live': guide(
+    'Uma API é uma forma de programas trocarem dados. fetch faz um pedido para um endereço, como pedir ao servidor a lista de livros disponíveis.',
+    'Revise async, await e JSON. HTTP é o conjunto de regras dessa troca. A resposta tem um status que informa se o pedido deu certo.',
+    '// Exemplo: este endereço precisa existir no servidor.\nasync function carregar() {\n  try {\n    const resposta = await fetch("/api/livros");\n    if (!resposta.ok) throw new Error("Falha ao buscar");\n    const livros = await resposta.json();\n    console.log(livros);\n  } catch {\n    console.log("Não foi possível carregar os livros.");\n  }\n}\ncarregar();', 'Se o servidor responder com JSON válido, aparecem os dados. Se o pedido falhar, aparece a mensagem de erro. /api/livros é ilustrativo e não é um serviço fornecido por esta aula.',
+    ['fetch envia o pedido. O primeiro await espera pela resposta.', 'ok indica status HTTP entre 200 e 299. Um erro HTTP, como 404, não faz fetch rejeitar automaticamente.', 'json() lê o corpo da resposta. O segundo await espera essa leitura.', 'catch trata falhas de rede, o erro que lançamos e JSON inválido.'],
+    'Não tente usar os dados antes de esperar a resposta e a leitura. Mostre na interface quando estiver carregando e quando houver falha.',
+    'Uma resposta 404 deve entrar no caminho de sucesso?', 'Não. resposta.ok será false, lançaremos um erro e o catch mostrará a mensagem de falha.'),
+  'js-16-classes-oop-inheritance': guide(
+    'Uma classe é um molde para criar objetos parecidos. Imagine um modelo de ficha que gera uma ficha diferente para cada aluno.',
+    'Revise objetos, métodos e this. new cria uma instância: um objeto feito a partir do molde. constructor prepara os valores iniciais.',
+    'class Aluno {\n  constructor(nome) { this.nome = nome; }\n  apresentar() { return `Sou ${this.nome}`; }\n}\nconst aluna = new Aluno("Lia");\nconsole.log(aluna.apresentar());', 'Sou Lia',
+    ['class Aluno define o molde, não um aluno específico.', 'new Aluno("Lia") cria um objeto e executa constructor com o nome Lia.', 'this.nome guarda o nome nesse objeto. apresentar lê esse nome.', 'Herança permite partir de outro molde com extends. super chama o construtor da classe base. Use isso quando o novo tipo realmente for uma especialização do anterior.'],
+    'Cada instância deve ter seus próprios dados. Criar outro aluno não deve sobrescrever o nome de Lia.',
+    'O que new Aluno("Rui").apresentar() retorna?', '"Sou Rui". Esse é um novo objeto, independente de aluna.'),
+  'js-8-pure-composition': guide(
+    'Uma função pura calcula sem alterar dados de fora. Com as mesmas entradas, entrega o mesmo resultado. Compor é usar o resultado de uma função como entrada de outra.',
+    'Revise parâmetros e return. Efeito externo é algo como alterar a página ou gravar no armazenamento.',
+    'const dobrar = numero => numero * 2;\nconst acrescentarUm = numero => numero + 1;\nconsole.log(acrescentarUm(dobrar(3)));', '7',
+    ['Primeiro dobrar(3) devolve 6.', 'Depois acrescentarUm(6) devolve 7.', 'As funções não mudam variáveis externas. Podemos conferir cada cálculo separadamente.'],
+    'Uma função que depende da hora atual ou muda uma lista externa não tem essa mesma previsibilidade.',
+    'Se invertermos para dobrar(acrescentarUm(3)), qual será o resultado?', '8. Primeiro 3 + 1 = 4; depois 4 * 2 = 8. A ordem importa.'),
+  'js-8-immutable-reducer': guide(
+    'Estado é o conjunto de dados que descreve como o aplicativo está agora. Um reducer recebe o estado e uma ação, e calcula o próximo estado.',
+    'Imutável significa preservar o valor anterior. ...estado copia as propriedades para um novo objeto; é uma cópia rasa, sem copiar objetos internos.',
+    'function reduzir(estado, acao) {\n  if (acao.tipo === "somar") {\n    return { ...estado, pontos: estado.pontos + 1 };\n  }\n  return estado;\n}\nconst antes = { pontos: 2 };\nconst depois = reduzir(antes, { tipo: "somar" });\nconsole.log(antes.pontos, depois.pontos);', '2 3',
+    ['antes representa a situação inicial.', 'A ação somar descreve o que aconteceu. O reducer cria um novo objeto com 3 pontos.', 'antes continua com 2. Para uma ação desconhecida, devolvemos o estado recebido.'],
+    'estado.pontos++ alteraria o objeto anterior. Para preservar o histórico, calcule o novo valor em outro objeto.',
+    'Qual resultado uma ação { tipo: "ignorar" } produz?', 'O mesmo estado recebido, sem mudar os pontos.'),
+  'js-8-dependency-injection': guide(
+    'Injetar uma dependência é entregar a ferramenta de que uma função precisa. Assim podemos trocar a ferramenta real por uma simples durante um teste.',
+    'Dependência é algo usado pelo código, como uma função que salva dados. Uma função também pode ser passada como argumento.',
+    'function registrar(nome, salvar) {\n  salvar(nome);\n  return "Registrado";\n}\nconst salvos = [];\nconsole.log(registrar("Lia", valor => salvos.push(valor)));\nconsole.log(salvos[0]);', 'Registrado\nLia',
+    ['registrar recebe o nome e a função salvar.', 'No exemplo, salvar coloca o valor em uma lista. Não precisamos de um servidor para conferir isso.', 'Em outra situação, podemos passar outra implementação de salvar. Separar essas responsabilidades facilita organizar arquivos em módulos.'],
+    'Se registrar escolher internamente um serviço fixo, fica mais difícil trocá-lo nos testes.',
+    'Qual valor vai para salvos se o nome for "Rui"?', '"Rui". A função recebida é chamada com o nome dessa execução.'),
+  'js-9-contract-tests': guide(
+    'Um teste compara o resultado real com o esperado. Contrato é a combinação do que uma função recebe, devolve e faz quando a entrada é inválida.',
+    'Escolha exemplos comuns e limites, como zero e lista vazia. Um teste só dá confiança sobre os comportamentos que ele realmente verifica.',
+    'const podeEntrar = idade => idade >= 12;\nconsole.log(podeEntrar(11) === false);\nconsole.log(podeEntrar(12) === true);\nconsole.log(podeEntrar(13) === true);', 'true\ntrue\ntrue',
+    ['A regra deste exemplo aceita idade a partir de 12.', 'Testamos um valor abaixo, o próprio limite e um acima.', 'Cada comparação mostra true quando o resultado real coincide com o esperado. Esses exemplos assumem idades numéricas válidas.'],
+    'Testar apenas um caso que dá certo deixa falhas escondidas. Inclua entradas inválidas quando elas fizerem parte do contrato.',
+    'Se alguém trocar >= por >, qual teste falhará?', 'O teste de 12. O próprio limite deixaria de ser aceito.'),
+  'js-9-catalog-index': guide(
+    'Map guarda pares de chave e valor para consulta. Set guarda valores sem repetição. Pense em uma agenda e em uma lista de presença sem nomes duplicados.',
+    'Uma chave identifica um registro. Não confunda Map, a coleção, com map(), a operação que transforma arrays.',
+    'const nomes = new Map();\nnomes.set("a1", "Lia");\nconsole.log(nomes.get("a1"));\nconst temas = new Set(["JS", "CSS", "JS"]);\nconsole.log(temas.size);', 'Lia\n2',
+    ['set associa a chave a1 ao valor Lia. get consulta essa chave.', 'Set mantém uma única ocorrência de JS.', 'size informa quantos valores diferentes existem. Um índice com Map evita procurar item por item em cada consulta, mas também ocupa memória.'],
+    'Ao usar set novamente com a mesma chave, o valor anterior é substituído. Escolha identificadores adequados.',
+    'O que nomes.get("inexistente") devolve?', 'undefined, pois nenhuma entrada foi guardada com essa chave.'),
+  'js-9-debounce': guide(
+    'Debounce espera uma pausa antes de fazer uma tarefa. Em uma busca, evita pesquisar a cada letra enquanto a pessoa ainda está digitando.',
+    'setTimeout agenda uma execução; clearTimeout cancela uma execução ainda pendente. O callback só roda depois que o código atual libera a execução.',
+    'let timer;\nfunction agendar(texto) {\n  clearTimeout(timer);\n  timer = setTimeout(() => console.log(texto), 300);\n}\nagendar("c");\nagendar("casa");', 'casa (depois de aproximadamente 300 ms ou mais)',
+    ['A primeira chamada agenda c.', 'A segunda cancela a primeira espera e agenda casa.', 'Quando a espera termina e o navegador pode executar a função, só casa aparece.'],
+    'Criar o identificador timer dentro de cada chamada impede cancelar a espera da chamada anterior. O cancelamento também não desfaz uma tarefa que já começou.',
+    'Se agendar("casaco") for chamado logo depois, antes do prazo, o que aparece?', 'Só casaco, após a nova pausa.'),
+  'js-10-async-controller': guide(
+    'Dois pedidos podem terminar fora de ordem. Se você buscar "gato" e depois "cachorro", a resposta antiga não deve substituir a busca mais recente.',
+    'Concorrência significa ter tarefas em andamento no mesmo período. Um identificador crescente ajuda a reconhecer qual pedido ainda vale.',
+    'let atual = 0;\nasync function buscar(pedido) {\n  const id = ++atual;\n  const resultado = await pedido;\n  if (id !== atual) return;\n  console.log(resultado);\n}\nbuscar(Promise.resolve("antigo"));\nbuscar(Promise.resolve("novo"));', 'novo',
+    ['Cada chamada recebe um número novo. ++atual aumenta e entrega esse número.', 'await permite que outro pedido seja iniciado antes de continuarmos.', 'Ao retomar, só o pedido cujo id ainda é o atual pode mostrar o resultado. Este exemplo isola a ordem; no projeto, trate também falhas e o estado de carregamento.'],
+    'Ignorar uma resposta antiga não cancela o trabalho de rede. AbortController pode ajudar a cancelar pedidos fetch quando necessário.',
+    'Por que antigo não aparece mesmo sendo chamado primeiro?', 'Quando sua continuação executa, atual já vale 2 e seu id é 1. A função encerra sem mostrar a resposta.'),
+  'js-10-accessible-status': guide(
+    'Uma atualização precisa ser compreensível para quem vê a tela e para quem usa leitor de tela. Uma mensagem de estado informa o que está acontecendo.',
+    'Tecnologia assistiva ajuda pessoas a usar a interface. role="status" marca uma área cujas mudanças podem ser anunciadas sem interromper a leitura.',
+    '// HTML: <p id="status" role="status"></p>\nconst status = document.querySelector("#status");\nstatus.textContent = "Carregando resultados…";\n// Quando o carregamento terminar:\n// status.textContent = "3 resultados encontrados.";', 'A área mostra “Carregando resultados…” e pode anunciar a atualização ao leitor de tela.',
+    ['A área de status já deve existir no HTML antes da atualização.', 'textContent escreve uma mensagem visível. O papel status permite que leitores de tela acompanhem a mudança.', 'Ao terminar, atualize a mensagem com o resultado real. Teste também os controles usando Tab e Enter.'],
+    'Mudar só a cor não explica o estado a todas as pessoas. Evite mover o foco para a mensagem sem necessidade.',
+    'Qual mensagem usar quando a busca termina sem itens?', 'Por exemplo: "Nenhum resultado encontrado. Tente outro termo." Ela informa o resultado e um próximo passo.'),
+  'js-10-persistence-boundary': guide(
+    'Quando o formato dos dados muda, precisamos reconhecer o formato antigo. Um número de versão funciona como uma etiqueta que diz como ler o conteúdo.',
+    'Revise JSON e validação. Migração significa transformar dados antigos para o formato atual. Uma falha ao salvar também precisa ser tratada.',
+    'const salvo = { versao: 1, temas: ["JS"] };\nfunction ler(dado) {\n  if (dado?.versao !== 1 || !Array.isArray(dado.temas)) {\n    return [];\n  }\n  return dado.temas;\n}\nconsole.log(ler(salvo)[0]);\nconsole.log(ler({ versao: 99 }).length);', 'JS\n0',
+    ['versao indica o formato que sabemos ler. ?. permite consultar a propriedade mesmo se dado for null ou undefined.', 'Validamos a versão e se temas é uma lista antes de usá-la.', 'O formato desconhecido recebe uma alternativa vazia. Em um app real, preserve o dado antigo para recuperação e valide também cada item.'],
+    'Não sobrescreva automaticamente dados desconhecidos com uma lista vazia: isso pode apagar informação recuperável.',
+    'Por que { versao: 1, temas: "JS" } não é aceito?', 'Porque temas é texto e o formato exige uma lista. A versão correta, sozinha, não garante dados válidos.'),
+};
+
+// Projetos usam o próprio exemplo de entrada/saída e o plano específico da etapa.
+export function getBeginnerGuide(stage) {
+  if (beginnerGuides[stage.id]) return beginnerGuides[stage.id];
+  if (!stage.projectBrief && !['js-5-mini-project-calculator', 'odin-rock-paper-scissors-ui', 'odin-etch-a-sketch'].includes(stage.id)) {
+    throw new Error(`Falta uma explicação inicial para ${stage.id}`);
+  }
+  const example = stage.instruction.challengeExamples[0];
+  return {
+    idea: `Aqui você vai juntar o que aprendeu para construir algo que funciona. ${stage.projectBrief?.summary || stage.instruction.brief}`,
+    before: 'Use as aulas anteriores como consulta. Entrada é o dado recebido; saída é o resultado entregue. Um requisito é uma regra que o projeto precisa cumprir. Não tente construir tudo de uma vez.',
+    exampleInput: example.input,
+    output: example.output,
+    steps: [
+      `Comece com este caso: ${example.input}. Identifique quais valores ou ações são fornecidos.`,
+      `O resultado esperado é: ${example.output}. ${example.note || 'Compare seu resultado com esse exemplo antes de acrescentar outros casos.'}`,
+      ...(stage.projectBrief?.milestones || []).map(item => `${item.title}: ${item.description}`),
+      'Implemente uma parte e use Executar código. Leia a primeira regra que ainda não passou e ajuste essa parte antes de seguir.',
+    ],
+    mistake: 'Não escreva um resultado fixo só para passar no exemplo. A mesma regra precisa funcionar com outras entradas. Os testes da etapa ajudam a conferir isso.',
+    practice: 'Antes de programar, explique com suas palavras: o que entra neste exemplo e o que precisa sair?',
+    answer: `A entrada ou ação é ${example.input}. O resultado esperado é ${example.output}. Use essa comparação como seu primeiro teste e depois confira os demais exemplos do desafio.`,
+  };
+}

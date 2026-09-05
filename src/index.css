@@ -92,6 +92,15 @@ a[href] {
 }
 
 section[id] { scroll-margin-top: 88px; }
+.lesson-reading { overflow-wrap: anywhere; }
+.beginner-guide { font-size: 1rem; line-height: 1.8; color: #343434; }
+.beginner-guide h3 { margin-bottom: 0.65rem; font-size: 1.125rem; line-height: 1.4; font-weight: 750; color: #171717; }
+.beginner-guide pre { overflow-wrap: normal; font-size: 0.875rem; line-height: 1.75; }
+.lesson-details p, .lesson-details li, .lesson-details .text-xs { font-size: 1rem; line-height: 1.8; }
+.lesson-details h3 { font-size: 1.125rem; line-height: 1.5; }
+.lesson-details pre { font-size: 0.875rem; line-height: 1.75; overflow-wrap: normal; }
+.lesson-details p code { font-size: 0.875em; }
+.lesson-reading summary { min-height: 44px; padding-block: 8px; }
 .roadmap-hero { background: radial-gradient(ellipse at 90% 15%, #dceee3 0%, transparent 55%), #f7f7f5; }
 .roadmap-hero aside { border-radius: 16px; box-shadow: 0 12px 40px -24px #174e35; }
 .roadmap-hero a { border-radius: 8px; }

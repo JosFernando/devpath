@@ -42,12 +42,12 @@ Há também projetos intermediários, como Pedra, Papel e Tesoura com interface 
 
 ## Como estudar uma aula
 
-1. **Confira o objetivo.** Explique com suas palavras o que a aula pretende ensinar e observe como isso será usado no projeto do módulo.
-2. **Preveja e execute.** Leia o exemplo, anote o resultado esperado e execute pequenas variações. Mude uma entrada ou condição por vez.
-3. **Descreva o contrato.** Identifique entradas, saídas, casos inválidos e efeitos esperados. Esboce a solução em passos antes de escrever código.
-4. **Implemente por partes.** Use o código inicial, acompanhe o console e execute o desafio após mudanças pequenas. Consulte as dicas progressivamente quando precisar.
-5. **Investigue a falha.** Compare resultado esperado e observado, formule uma hipótese e confirme a correção com um caso que falhava e outro que já funcionava.
-6. **Revise e avance.** Responda à pergunta de compreensão quando disponível e teste ao menos uma variação dos exemplos. Depois da validação, prossiga para a próxima etapa.
+1. **Comece pela explicação simples.** Leia “Vamos entender do começo” e “O que você precisa saber antes”. Os termos novos são explicados junto do assunto. Você pode voltar à aula anterior para revisar.
+2. **Acompanhe o exemplo.** Veja o resultado esperado e leia cada passo para entender como chegamos até ele. Os exemplos de HTML e CSS mostram mudanças na página; os de JavaScript podem mostrar mensagens no console.
+3. **Tente uma pequena mudança.** Responda à atividade “Sua vez” antes de abrir “Ver resposta explicada”. Não precisa decorar o código.
+4. **Leia mais quando precisar.** Abra “Aprofundar” para consultar a explicação completa, outros exemplos e os objetivos da etapa. Essa parte complementa a introdução e ajuda a resolver o desafio.
+5. **Construa por partes.** No desafio, identifique o que entra e qual resultado deve sair. Escreva uma parte, use “Executar código” e confira a primeira regra que ainda não passou. Se precisar, consulte as dicas e a aula.
+6. **Revise e avance.** Responda à pergunta de compreensão e experimente outra entrada. Quando os testes do desafio passarem, siga para a próxima etapa. Nos projetos, use o exemplo de entrada e saída e o plano de construção como guia.
 
 As etapas seguem uma sequência de dependências. O projeto é o fechamento do módulo, e sua aprovação faz parte do caminho até as etapas seguintes. O plano do projeto pode ser consultado durante as aulas para orientar o estudo; a execução do projeto é liberada após os pré-requisitos.
 

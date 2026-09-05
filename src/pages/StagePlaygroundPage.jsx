@@ -24,6 +24,7 @@ import InteractiveConsole from '../components/InteractiveConsole';
 import ValidationChecklist from '../components/ValidationChecklist';
 import KnowledgeCheck from '../components/KnowledgeCheck';
 import ModuleProject from '../components/ModuleProject';
+import BeginnerGuide from '../components/BeginnerGuide';
 import { buildPreview, loadPreview, withTimeout } from '../lib/playgroundRuntime';
 import { useProgress } from '../context/ProgressContext';
 import { jsRoadmapCourse } from '../data/roadmapData';
@@ -41,7 +42,7 @@ function InlineText({ text, inverted = false }) {
   });
 }
 
-function LessonContent({ stageId, lessonText, objective, objectives = [], knowledgeCheck, brief, practicePrompt, onContinue, moduleProject, onViewProject }) {
+function LessonContent({ stageId, beginnerGuide, lessonText, objective, objectives = [], knowledgeCheck, brief, practicePrompt, onContinue, moduleProject, onViewProject }) {
   const [copiedIndex, setCopiedIndex] = useState(null);
   const chunks = (lessonText || '').split(/```/g);
 
@@ -56,8 +57,12 @@ function LessonContent({ stageId, lessonText, objective, objectives = [], knowle
   };
 
   return (
-    <div className="space-y-6">
+    <div className="lesson-reading space-y-6">
       {copiedIndex === 'error' && <p role="status" className="text-xs text-amber-700">Não foi possível copiar. Selecione o trecho e copie manualmente.</p>}
+      {beginnerGuide && <BeginnerGuide guide={beginnerGuide} stageId={stageId} previousStage={jsRoadmapCourse.stages[jsRoadmapCourse.stages.findIndex(stage => stage.id === stageId) - 1]} />}
+      <details className="lesson-details rounded-xl border border-neutral-200 p-4">
+        <summary className="cursor-pointer text-base font-bold text-neutral-950">Aprofundar: explicação completa e mais exemplos</summary>
+        <div className="mt-5 space-y-6">
       {brief && (
         <div className="border border-neutral-200 bg-[#f7f7f5] p-4">
           <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-neutral-500"><BookOpen className="h-3.5 w-3.5" /> Em poucas palavras</p>
@@ -132,11 +137,14 @@ function LessonContent({ stageId, lessonText, objective, objectives = [], knowle
         });
       })}
 
+        </div>
+      </details>
+
       {knowledgeCheck && <KnowledgeCheck stageId={stageId} question={knowledgeCheck} />}
 
       <div className="rounded-lg border border-neutral-300 p-4">
         <p className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-500">Antes de ir ao desafio</p>
-        <p className="mt-2 text-xs leading-5 text-neutral-700">Confirme que você entende o objetivo acima e sabe onde o conceito aparece no exemplo. Não precisa memorizar: use a aula e as fontes como consulta.</p>
+        <p className="mt-2 text-base leading-7 text-neutral-700">Consegue explicar o exemplo com suas palavras? Se alguma parte ainda estiver confusa, releia os passos ou abra “Aprofundar”. Você pode consultar a aula enquanto resolve o desafio.</p>
       </div>
 
       <button type="button" onClick={onContinue} className="flex h-11 w-full items-center justify-center gap-2 bg-neutral-950 px-4 text-xs font-bold text-white transition hover:bg-neutral-700">
@@ -488,6 +496,7 @@ function StageWorkspace({ stage }) {
             {instructionTab === 'lesson' && (
               <LessonContent
                 stageId={stage.id}
+                beginnerGuide={stage.instruction.beginnerGuide}
                 objectives={stage.instruction.learningObjectives}
                 knowledgeCheck={stage.instruction.knowledgeCheck}
                 lessonText={stage.instruction.deepLesson}
