@@ -1,249 +1,227 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+﻿import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
 import { roadmapCourse } from '../data/roadmapData';
 import { curriculum } from '../data/curriculum';
+import {
+  exportProgressBackup,
+  getEarnedXp,
+  getStreak,
+  importProgressBackup,
+  readStoredProgress,
+  recordActivity,
+  saveStoredProgress,
+} from '../lib/progressStorage';
 
 const ProgressContext = createContext(null);
-const STORAGE_KEY = 'devpath_roadmap_progress_v2';
-const CHALLENGE_CONTENT_VERSION = 2;
+const stages = roadmapCourse?.stages || [];
+const lessons = curriculum.flatMap((course) => course.modules.flatMap((module) => module.lessons || []));
+const projects = curriculum.flatMap((course) => course.modules.flatMap((module) => module.projects || []));
+const catalog = {
+  stageIds: stages.map((stage) => stage.id),
+  lessonIds: lessons.map((lesson) => lesson.id),
+  projectIds: projects.map((project) => project.id),
+};
+
+function getStorage() {
+  try {
+    return globalThis.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function sameFiles(first, second) {
+  return first && second && Object.keys(first).length === Object.keys(second).length
+    && Object.entries(first).every(([name, code]) => second[name] === code);
+}
 
 export function ProgressProvider({ children }) {
-  const [state, setState] = useState(() => {
-    const defaultState = {
-      completedStages: [],
-      currentStageId: roadmapCourse?.stages?.[0]?.id || 'js-1-variables-and-types',
-      stageFiles: {},
-      challengeContentVersion: CHALLENGE_CONTENT_VERSION,
-      completedLessons: [],
-      checklistDone: {},
-      projectSubmissions: {},
-      xp: 0,
-      streak: 1,
-      theme: 'dark'
-    };
+  const [loaded] = useState(() => readStoredProgress(getStorage(), catalog));
+  const [state, setState] = useState(loaded.progress);
+  const [storageError, setStorageError] = useState(loaded.error);
+  const stateRef = useRef(state);
+  const recoveryRawRef = useRef(loaded.recoveryRaw);
 
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object') {
-          const validIds = new Set(roadmapCourse?.stages?.map((s) => s.id) || []);
-          const completed = Array.isArray(parsed.completedStages)
-            ? parsed.completedStages.filter((id) => validIds.has(id))
-            : [];
-          
-          const currentStageValid = validIds.has(parsed.currentStageId);
+  // Save actual changes immediately, including the last keystroke before closing a tab.
+  // Reading or upgrading a content version does not overwrite existing work.
+  const updateState = useCallback((updater, activity = false) => {
+    let nextState = typeof updater === 'function' ? updater(stateRef.current) : updater;
+    if (nextState === stateRef.current) return;
+    if (activity) nextState = recordActivity(nextState);
+    nextState = { ...nextState, xp: getEarnedXp(nextState, catalog), streak: getStreak(nextState.activityDays) };
+    stateRef.current = nextState;
+    const result = saveStoredProgress(getStorage(), nextState, recoveryRawRef.current);
+    if (result.success) recoveryRawRef.current = null;
+    setStorageError(result.success ? null : result.error);
+    setState(nextState);
+  }, []);
 
-          const hasCurrentChallengeContent = parsed.challengeContentVersion === CHALLENGE_CONTENT_VERSION;
+  const isStageUnlocked = useCallback((stageId) => {
+    const stage = stages.find((item) => item.id === stageId);
+    return Boolean(stage && (state.completedStages.includes(stageId)
+      || (stage.dependencies || []).every((id) => state.completedStages.includes(id))));
+  }, [state.completedStages]);
 
-          return {
-            ...defaultState,
-            ...parsed,
-            // A versão anterior abria vários desafios com a solução pronta.
-            // Invalidamos somente esse progresso e preservamos lições/projetos.
-            completedStages: hasCurrentChallengeContent ? completed : [],
-            currentStageId: hasCurrentChallengeContent && currentStageValid ? parsed.currentStageId : defaultState.currentStageId,
-            stageFiles: hasCurrentChallengeContent && parsed.stageFiles && typeof parsed.stageFiles === 'object' ? parsed.stageFiles : {},
-            challengeContentVersion: CHALLENGE_CONTENT_VERSION,
-            completedLessons: Array.isArray(parsed.completedLessons) ? parsed.completedLessons : [],
-            checklistDone: parsed.checklistDone && typeof parsed.checklistDone === 'object' ? parsed.checklistDone : {},
-            projectSubmissions: parsed.projectSubmissions && typeof parsed.projectSubmissions === 'object' ? parsed.projectSubmissions : {},
-            xp: typeof parsed.xp === 'number' ? parsed.xp : 0,
-            streak: typeof parsed.streak === 'number' ? parsed.streak : 1
-          };
-        }
-      }
-    } catch (e) {
-      console.error('Erro ao ler progresso do localStorage:', e);
-    }
-    return defaultState;
-  });
+  const isStageCompleted = useCallback((stageId) => state.completedStages.includes(stageId), [state.completedStages]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.error('Erro ao salvar progresso no localStorage:', e);
-    }
-  }, [state]);
+  const visitStage = useCallback((stageId) => {
+    if (!catalog.stageIds.includes(stageId)) return;
+    updateState((previous) => previous.currentStageId === stageId ? previous : { ...previous, currentStageId: stageId });
+  }, [updateState]);
 
-  // Verifica se uma etapa está desbloqueada
-  // ==========================================
-  // MÉTODOS DO ROADMAP & PLAYGROUND
-  // ==========================================
+  const completeStage = useCallback((stageId) => {
+    updateState((previous) => {
+      const stage = stages.find((item) => item.id === stageId);
+      if (!stage || previous.completedStages.includes(stageId)) return previous;
+      return { ...previous, completedStages: [...previous.completedStages, stageId], currentStageId: stageId };
+    }, true);
+  }, [updateState]);
 
-  const isStageUnlocked = (stageId) => {
-    const stage = roadmapCourse?.stages?.find((s) => s.id === stageId);
-    if (!stage) return false;
-    if (!stage.dependencies || stage.dependencies.length === 0) return true;
-    return stage.dependencies.every((depId) => state.completedStages.includes(depId));
-  };
+  const saveStageFiles = useCallback((stageId, files) => {
+    if (!catalog.stageIds.includes(stageId) || !files || typeof files !== 'object' || Array.isArray(files)) return;
+    const entries = Object.entries(files);
+    if (entries.some(([name, code]) => ['__proto__', 'constructor', 'prototype'].includes(name) || !name || typeof code !== 'string')) return;
+    updateState((previous) => {
+      if (sameFiles(previous.stageFiles[stageId], files)) return previous;
+      return { ...previous, stageFiles: { ...previous.stageFiles, [stageId]: { ...files } } };
+    }, true);
+  }, [updateState]);
 
-  const isStageCompleted = (stageId) => {
-    return Array.isArray(state.completedStages) && state.completedStages.includes(stageId);
-  };
-
-  // Concluir uma etapa
-  const completeStage = (stageId) => {
-    setState((prev) => {
-      if (prev.completedStages.includes(stageId)) return prev;
-
-      const newCompleted = [...prev.completedStages, stageId];
-      const stages = roadmapCourse?.stages || [];
-      const currentIdx = stages.findIndex((s) => s.id === stageId);
-      const nextStage = stages[currentIdx + 1];
-
-      return {
-        ...prev,
-        completedStages: newCompleted,
-        currentStageId: nextStage ? nextStage.id : stageId,
-        xp: prev.xp + 25
-      };
-    });
-  };
-
-  // Salva o código que o aluno editou
-  const saveStageFiles = (stageId, files) => {
-    setState((prev) => ({
-      ...prev,
-      stageFiles: {
-        ...(prev.stageFiles || {}),
-        [stageId]: files
-      }
-    }));
-  };
-
-  // Recupera os arquivos da etapa (ou o starter padrão)
-  const getStageFiles = (stageId) => {
-    const stage = roadmapCourse?.stages?.find((s) => s.id === stageId);
+  const getStageFiles = useCallback((stageId) => {
+    const stage = stages.find((item) => item.id === stageId);
     if (!stage) return {};
-    if (state.stageFiles && state.stageFiles[stageId]) {
-      return state.stageFiles[stageId];
-    }
-    return stage.playground?.files || {};
-  };
+    return { ...(state.stageFiles[stageId] || stage.playground?.files || {}) };
+  }, [state.stageFiles]);
 
-  // Reseta os arquivos para o código original
-  const resetStageFiles = (stageId) => {
-    setState((prev) => {
-      const newFiles = { ...(prev.stageFiles || {}) };
-      delete newFiles[stageId];
-      return { ...prev, stageFiles: newFiles };
+  const hasStageDraft = useCallback((stageId) => {
+    const savedFiles = state.stageFiles[stageId];
+    const initialFiles = stages.find((stage) => stage.id === stageId)?.playground?.files || {};
+    return Boolean(savedFiles && !sameFiles(savedFiles, initialFiles));
+  }, [state.stageFiles]);
+
+  const resetStageFiles = useCallback((stageId) => {
+    updateState((previous) => {
+      if (!Object.hasOwn(previous.stageFiles, stageId)) return previous;
+      const stageFiles = { ...previous.stageFiles };
+      delete stageFiles[stageId];
+      return { ...previous, stageFiles };
     });
-  };
+  }, [updateState]);
 
-  // Alterna tema claro / escuro
-  // ==========================================
-  // MÉTODOS DO CURRÍCULO (ODIN PROJECT STYLE)
-  // ==========================================
-
-  const isLessonCompleted = (lessonId) => {
-    return state.completedLessons?.includes(lessonId) || false;
-  };
-
-  const toggleLessonComplete = (lessonId) => {
-    setState((prev) => {
-      const current = prev.completedLessons || [];
-      const exists = current.includes(lessonId);
-      const updated = exists ? current.filter((id) => id !== lessonId) : [...current, lessonId];
+  const saveKnowledgeCheck = useCallback((stageId, answer, isCorrect) => {
+    if (!catalog.stageIds.includes(stageId) || typeof isCorrect !== 'boolean') return;
+    if (typeof answer !== 'string' && !(Number.isInteger(answer) && answer >= 0)) return;
+    updateState((previous) => {
+      const saved = previous.knowledgeChecks[stageId];
+      if (saved?.answer === answer && saved.isCorrect === isCorrect) return previous;
       return {
-        ...prev,
-        completedLessons: updated,
-        xp: exists ? Math.max(0, prev.xp - 15) : prev.xp + 15
+        ...previous,
+        knowledgeChecks: {
+          ...previous.knowledgeChecks,
+          [stageId]: { answer, isCorrect, answeredAt: new Date().toISOString() },
+        },
       };
-    });
-  };
+    }, true);
+  }, [updateState]);
 
-  const isChecklistItemDone = (lessonId, itemIndex) => {
+  const isLessonCompleted = useCallback((lessonId) => state.completedLessons.includes(lessonId), [state.completedLessons]);
+
+  const toggleLessonComplete = useCallback((lessonId) => {
+    if (!catalog.lessonIds.includes(lessonId)) return;
+    updateState((previous) => ({
+      ...previous,
+      completedLessons: previous.completedLessons.includes(lessonId)
+        ? previous.completedLessons.filter((id) => id !== lessonId)
+        : [...previous.completedLessons, lessonId],
+    }), true);
+  }, [updateState]);
+
+  const isChecklistItemDone = useCallback((lessonId, itemIndex) => (
+    state.checklistDone[`${lessonId}_${itemIndex}`] || false
+  ), [state.checklistDone]);
+
+  const toggleChecklistItem = useCallback((lessonId, itemIndex) => {
+    const lesson = lessons.find((item) => item.id === lessonId);
+    if (!lesson || !Number.isInteger(itemIndex) || itemIndex < 0 || itemIndex >= (lesson.assignment?.checklist?.length || 0)) return;
     const key = `${lessonId}_${itemIndex}`;
-    return state.checklistDone?.[key] || false;
-  };
+    updateState((previous) => ({ ...previous, checklistDone: { ...previous.checklistDone, [key]: !previous.checklistDone[key] } }), true);
+  }, [updateState]);
 
-  const toggleChecklistItem = (lessonId, itemIndex) => {
-    const key = `${lessonId}_${itemIndex}`;
-    setState((prev) => ({
-      ...prev,
-      checklistDone: {
-        ...(prev.checklistDone || {}),
-        [key]: !prev.checklistDone?.[key]
-      }
-    }));
-  };
-
-  const submitProject = (projectId, submission) => {
-    setState((prev) => ({
-      ...prev,
+  const submitProject = useCallback((projectId, submission) => {
+    if (!catalog.projectIds.includes(projectId) || !submission || typeof submission.repoUrl !== 'string' || !submission.repoUrl.trim()) return;
+    updateState((previous) => ({
+      ...previous,
       projectSubmissions: {
-        ...(prev.projectSubmissions || {}),
+        ...previous.projectSubmissions,
         [projectId]: {
-          ...submission,
-          submittedAt: new Date().toISOString()
-        }
+          repoUrl: submission.repoUrl.trim(),
+          liveUrl: typeof submission.liveUrl === 'string' ? submission.liveUrl.trim() : '',
+          submittedAt: new Date().toISOString(),
+        },
       },
-      xp: prev.xp + 50
-    }));
-  };
+    }), true);
+  }, [updateState]);
 
-  const getProjectSubmission = (projectId) => {
-    return state.projectSubmissions?.[projectId] || null;
-  };
+  const getProjectSubmission = useCallback((projectId) => state.projectSubmissions[projectId] || null, [state.projectSubmissions]);
 
-  const getCourseProgress = (courseId) => {
-    const course = curriculum.find((c) => c.id === courseId);
+  const getCourseProgress = useCallback((courseId) => {
+    const course = curriculum.find((item) => item.id === courseId);
     if (!course) return { total: 0, completed: 0, percentage: 0 };
+    const courseLessons = course.modules.flatMap((module) => module.lessons || []);
+    const courseProjects = course.modules.flatMap((module) => module.projects || []);
+    const total = courseLessons.length + courseProjects.length;
+    const completed = courseLessons.filter((lesson) => state.completedLessons.includes(lesson.id)).length
+      + courseProjects.filter((project) => state.projectSubmissions[project.id]).length;
+    return { total, completed, percentage: total ? Math.round(completed / total * 100) : 0 };
+  }, [state.completedLessons, state.projectSubmissions]);
 
-    let totalItems = 0;
-    let completedItems = 0;
+  const toggleTheme = useCallback(() => {
+    updateState((previous) => ({ ...previous, theme: previous.theme === 'dark' ? 'light' : 'dark' }));
+  }, [updateState]);
 
-    course.modules.forEach((mod) => {
-      if (mod.lessons) {
-        totalItems += mod.lessons.length;
-        mod.lessons.forEach((l) => {
-          if (state.completedLessons?.includes(l.id)) completedItems++;
-        });
-      }
-      if (mod.projects) {
-        totalItems += mod.projects.length;
-        mod.projects.forEach((p) => {
-          if (state.projectSubmissions?.[p.id]) completedItems++;
-        });
-      }
-    });
+  const exportProgress = useCallback(() => exportProgressBackup({
+    ...stateRef.current,
+    streak: getStreak(stateRef.current.activityDays),
+  }), []);
 
-    const percentage = totalItems === 0 ? 0 : Math.round((completedItems / totalItems) * 100);
-    return { total: totalItems, completed: completedItems, percentage };
-  };
-
-  const toggleTheme = () => {
-    setState((prev) => ({
-      ...prev,
-      theme: prev.theme === 'dark' ? 'light' : 'dark'
-    }));
-  };
+  const importProgress = useCallback((json) => {
+    const result = importProgressBackup(getStorage(), json, stateRef.current, catalog, recoveryRawRef.current);
+    if (!result.success) return { success: false, error: result.error };
+    stateRef.current = result.progress;
+    recoveryRawRef.current = null;
+    setStorageError(null);
+    setState(result.progress);
+    return { success: true };
+  }, []);
 
   return (
-    <ProgressContext.Provider
-      value={{
-        completedStages: state.completedStages,
-        currentStageId: state.currentStageId,
-        xp: state.xp,
-        streak: state.streak,
-        theme: state.theme,
-        isStageUnlocked,
-        isStageCompleted,
-        completeStage,
-        saveStageFiles,
-        getStageFiles,
-        resetStageFiles,
-        isLessonCompleted,
-        toggleLessonComplete,
-        isChecklistItemDone,
-        toggleChecklistItem,
-        submitProject,
-        getProjectSubmission,
-        getCourseProgress,
-        toggleTheme
-      }}
-    >
+    <ProgressContext.Provider value={{
+      completedStages: state.completedStages,
+      currentStageId: state.currentStageId,
+      knowledgeChecks: state.knowledgeChecks,
+      xp: state.xp,
+      streak: getStreak(state.activityDays),
+      theme: state.theme,
+      storageError,
+      isStageUnlocked,
+      isStageCompleted,
+      visitStage,
+      completeStage,
+      saveStageFiles,
+      getStageFiles,
+      hasStageDraft,
+      resetStageFiles,
+      saveKnowledgeCheck,
+      isLessonCompleted,
+      toggleLessonComplete,
+      isChecklistItemDone,
+      toggleChecklistItem,
+      submitProject,
+      getProjectSubmission,
+      getCourseProgress,
+      toggleTheme,
+      exportProgress,
+      importProgress,
+    }}>
       {children}
     </ProgressContext.Provider>
   );
@@ -251,8 +229,6 @@ export function ProgressProvider({ children }) {
 
 export function useProgress() {
   const context = useContext(ProgressContext);
-  if (!context) {
-    throw new Error('useProgress deve ser usado dentro de ProgressProvider');
-  }
+  if (!context) throw new Error('useProgress deve ser usado dentro de ProgressProvider');
   return context;
 }

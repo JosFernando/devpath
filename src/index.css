@@ -90,3 +90,26 @@ a[href] {
     transition-duration: 0.01ms !important;
   }
 }
+
+section[id] { scroll-margin-top: 88px; }
+.roadmap-hero { background: radial-gradient(ellipse at 90% 15%, #dceee3 0%, transparent 55%), #f7f7f5; }
+.roadmap-hero aside { border-radius: 16px; box-shadow: 0 12px 40px -24px #174e35; }
+.roadmap-hero a { border-radius: 8px; }
+.skip-link { position: fixed; top: -100px; left: 16px; z-index: 100; border-radius: 8px; background: #111; color: white; padding: 12px 20px; }
+.skip-link:focus { top: 12px; }
+
+/* Keep keyboard focus visible inside clipped cards and narrow screens. */
+article > button:focus-visible,
+article a:focus-visible {
+  outline-offset: -3px;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+@media (max-width: 639px) {
+  #lesson-search {
+    font-size: 16px;
+  }
+}

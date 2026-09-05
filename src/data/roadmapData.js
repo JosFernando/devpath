@@ -3,16 +3,28 @@
 // Conteúdo Pedagógico Aprofundado, Exemplos Reais e Desafios
 // ============================================================
 
+import { odinFoundationStageInsertions } from './odinFoundationStages.js';
+import { curriculumLessons } from './curriculumLessons.js';
+import { curriculumChecks } from './curriculumChecks.js';
+import { foundationInsertions, foundationModuleProjects } from './foundationExpansion.js';
+import { advancedModules, advancedStages } from './advancedExpansion.js';
+import { trainingPhases, foundationModuleDetails, existingProjectBriefs } from './trainingStructure.js';
+
 export const jsRoadmapCourse = {
   id: "javascript-mastery",
   title: "JavaScript: Do Zero ao Avançado (Mão na Massa)",
   slug: "javascript",
-  description: "A trilha definitiva para dominar JavaScript moderno. Cada lição contém teoria estruturada, exemplos comentados, armadilhas comuns e um desafio prático no editor com testes automatizados.",
+  description: "Uma trilha prática de JavaScript inspirada na progressão do The Odin Project: fundamentos, resolução de problemas, projetos no navegador e conceitos avançados. Cada etapa combina estudo dirigido, código inicial e critérios automáticos de conclusão.",
+  source: {
+    name: "The Odin Project",
+    url: "https://www.theodinproject.com/",
+    note: "Referências selecionadas do currículo aberto do The Odin Project, adaptadas a uma experiência prática em português."
+  },
   modules: [
     { id: "mod-1", name: "1. Fundamentos da Linguagem", icon: "🌱", desc: "Variáveis, tipos primitivos, operadores lógicos e condicionais" },
-    { id: "mod-2", name: "2. Funções & Escopo", icon: "⚡", desc: "Funções clássicas, parâmetros padrão, arrow functions e escopo léxico" },
-    { id: "mod-3", name: "3. Arrays & Estruturas de Dados", icon: "📦", desc: "Manipulação de listas, métodos funcionais (map, filter, reduce) e objetos" },
-    { id: "mod-4", name: "4. O DOM & Eventos no Navegador", icon: "🌐", desc: "Seleção de nós, alteração de classes, escuta de eventos e criação dinâmica" },
+    { id: "mod-2", name: "2. Funções & Resolução de Problemas", icon: "⚡", desc: "Funções, escopo, pseudocódigo, decomposição e o primeiro projeto de lógica" },
+    { id: "mod-3", name: "3. Loops, Arrays & Objetos", icon: "📦", desc: "Repetição, métodos funcionais, objetos e exercícios orientados por testes" },
+    { id: "mod-4", name: "4. DOM, Eventos & Projetos", icon: "🌐", desc: "Manipulação do DOM consolidada em interfaces e projetos progressivos" },
     { id: "mod-5", name: "5. Web APIs & Persistência (localStorage)", icon: "💾", desc: "Armazenamento persistente com JSON e temporizadores (setInterval)" },
     { id: "mod-6", name: "6. JavaScript Assíncrono & APIs REST", icon: "🚀", desc: "Promises, async/await, tratamento de erros e requisições com fetch()" },
     { id: "mod-7", name: "7. POO & Tópicos Avançados", icon: "🏆", desc: "Classes ES6, construtores, herança, closures e Projeto Capstone" }
@@ -2048,6 +2060,204 @@ jsRoadmapCourse.stages.forEach((stage) => {
     };
   }
 });
+
+// Leituras oficiais do The Odin Project alinhadas a cada etapa da trilha.
+// Mantemos apenas resumos próprios no DevPath e enviamos o aluno ao material
+// original para o estudo completo e para a atribuição da fonte.
+const odinResourcesByStage = {
+  "js-1-variables-and-types": [
+    {
+      source: "The Odin Project",
+      title: "Variables and Operators",
+      url: "https://www.theodinproject.com/lessons/foundations-variables-and-operators",
+      summary: "Introdução a let, const, operações e execução de JavaScript no navegador."
+    }
+  ],
+  "js-2-template-literals": [
+    {
+      source: "The Odin Project",
+      title: "Data Types and Conditionals",
+      url: "https://www.theodinproject.com/lessons/foundations-fundamentals-part-2",
+      summary: "Tipos de dados, strings com crases e interpolação de expressões."
+    }
+  ],
+  "js-3-conditionals-and-strict-equality": [
+    {
+      source: "The Odin Project",
+      title: "Data Types and Conditionals",
+      url: "https://www.theodinproject.com/lessons/foundations-fundamentals-part-2",
+      summary: "Comparações, operadores lógicos, valores truthy e falsy e decisões com condicionais."
+    }
+  ],
+  "js-4-arrow-functions-defaults": [
+    {
+      source: "The Odin Project",
+      title: "Function Basics",
+      url: "https://www.theodinproject.com/lessons/foundations-function-basics",
+      summary: "Definição, chamada, retorno, escopo e uma introdução às arrow functions."
+    }
+  ],
+  "js-5-mini-project-calculator": [
+    {
+      source: "The Odin Project",
+      title: "Problem Solving",
+      url: "https://www.theodinproject.com/lessons/foundations-problem-solving",
+      summary: "Uma abordagem estruturada para dividir problemas em passos menores antes de programar."
+    }
+  ],
+  "js-6-arrays-iteration-methods": [
+    {
+      source: "The Odin Project",
+      title: "Loops and Arrays",
+      url: "https://www.theodinproject.com/lessons/foundations-loops-and-arrays",
+      summary: "Arrays, repetição, métodos essenciais e prática orientada por testes."
+    }
+  ],
+  "js-7-arrays-functional-map-filter": [
+    {
+      source: "The Odin Project",
+      title: "Loops and Arrays",
+      url: "https://www.theodinproject.com/lessons/foundations-loops-and-arrays",
+      summary: "Exemplos práticos de transformação e seleção de dados com map e filter."
+    }
+  ],
+  "js-8-array-reduce-superpower": [
+    {
+      source: "The Odin Project",
+      title: "Loops and Arrays",
+      url: "https://www.theodinproject.com/lessons/foundations-loops-and-arrays",
+      summary: "Uso combinado de filter, map e reduce para resolver problemas com arrays."
+    }
+  ],
+  "js-9-dom-selection-manipulation": [
+    {
+      source: "The Odin Project",
+      title: "DOM Manipulation and Events",
+      url: "https://www.theodinproject.com/lessons/foundations-dom-manipulation-and-events",
+      summary: "A árvore do DOM, seletores e alteração de texto, atributos e classes."
+    }
+  ],
+  "js-10-dom-events-and-forms": [
+    {
+      source: "The Odin Project",
+      title: "DOM Manipulation and Events",
+      url: "https://www.theodinproject.com/lessons/foundations-dom-manipulation-and-events",
+      summary: "Event listeners, propagação de eventos e interação do JavaScript com a interface."
+    }
+  ],
+  "js-11-dom-dynamic-creation-list": [
+    {
+      source: "The Odin Project",
+      title: "DOM Manipulation and Events",
+      url: "https://www.theodinproject.com/lessons/foundations-dom-manipulation-and-events",
+      summary: "Criação e inserção de elementos no DOM com createElement e appendChild."
+    }
+  ],
+  "js-12-localstorage-json": [
+    {
+      source: "The Odin Project",
+      title: "JSON",
+      url: "https://www.theodinproject.com/lessons/javascript-json",
+      summary: "Como estruturar dados e convertê-los com JSON.parse e JSON.stringify."
+    },
+    {
+      source: "The Odin Project",
+      title: "Project: Todo List",
+      url: "https://www.theodinproject.com/lessons/node-path-javascript-todo-list",
+      summary: "Aplicação prática de JSON e localStorage para manter os dados entre sessões."
+    }
+  ],
+  "js-13-timers-interval": [
+    {
+      source: "The Odin Project",
+      title: "Asynchronous Code",
+      url: "https://www.theodinproject.com/lessons/node-path-javascript-asynchronous-code",
+      summary: "O modelo assíncrono do JavaScript e tarefas que continuam sem bloquear a aplicação."
+    }
+  ],
+  "js-14-async-await-promises": [
+    {
+      source: "The Odin Project",
+      title: "Async and Await",
+      url: "https://www.theodinproject.com/lessons/javascript-async-and-await",
+      summary: "Promises com uma sintaxe mais legível, valores de retorno e tratamento de erros."
+    }
+  ],
+  "js-15-fetch-api-live": [
+    {
+      source: "The Odin Project",
+      title: "Working with APIs",
+      url: "https://www.theodinproject.com/lessons/javascript-working-with-apis",
+      summary: "Conceitos de API, requisições com fetch e extração dos dados recebidos."
+    }
+  ],
+  "js-16-classes-oop-inheritance": [
+    {
+      source: "The Odin Project",
+      title: "Classes",
+      url: "https://www.theodinproject.com/lessons/javascript-classes",
+      summary: "Sintaxe de classes, herança, campos privados e relação com protótipos."
+    }
+  ],
+  "js-17-grand-capstone-app": [
+    {
+      source: "The Odin Project",
+      title: "Project: Todo List",
+      url: "https://www.theodinproject.com/lessons/node-path-javascript-todo-list",
+      summary: "Referência de arquitetura para organizar dados, interface e persistência em um app completo."
+    }
+  ]
+};
+
+jsRoadmapCourse.stages.forEach((stage) => {
+  const odinResources = odinResourcesByStage[stage.id] || [];
+  const odinUrls = new Set(odinResources.map((resource) => resource.url));
+  stage.instruction.curatedLinks = [
+    ...odinResources,
+    ...(stage.instruction.curatedLinks || []).filter((resource) => !odinUrls.has(resource.url))
+  ];
+});
+
+// Uma única sequência alimenta a trilha, o editor e o progresso. Os IDs antigos
+// são preservados para manter os rascunhos e as conquistas de quem já estudava.
+for (const { after, stage } of [...odinFoundationStageInsertions, ...foundationInsertions]) {
+  const index = jsRoadmapCourse.stages.findIndex((item) => item.id === after);
+  if (index < 0) throw new Error(`Pré-requisito não encontrado: ${after}`);
+  jsRoadmapCourse.stages.splice(index + 1, 0, stage);
+}
+
+// FizzBuzz exige repetição: a introdução a loops deve vir antes do problema.
+const fizzBuzzIndex = jsRoadmapCourse.stages.findIndex((stage) => stage.id === 'odin-problem-solving-fizzbuzz');
+const [fizzBuzzStage] = jsRoadmapCourse.stages.splice(fizzBuzzIndex, 1);
+fizzBuzzStage.moduleId = 'mod-3';
+const loopsIndex = jsRoadmapCourse.stages.findIndex((stage) => stage.id === 'js-foundation-loops');
+jsRoadmapCourse.stages.splice(loopsIndex + 1, 0, fizzBuzzStage);
+
+jsRoadmapCourse.modules = [...jsRoadmapCourse.modules, ...advancedModules].map((module) => ({
+  ...module,
+  ...foundationModuleDetails[module.id],
+  projectStageId: foundationModuleProjects[module.id]
+    || advancedStages.filter((stage) => stage.moduleId === module.id).at(-1)?.id,
+}));
+jsRoadmapCourse.stages = [...jsRoadmapCourse.stages, ...advancedStages].map((stage, index, stages) => ({
+  ...stage,
+  stepNumber: index + 1,
+  moduleName: jsRoadmapCourse.modules.find((module) => module.id === stage.moduleId).name,
+  dependencies: index ? [stages[index - 1].id] : [],
+  isCapstone: index === stages.length - 1,
+  instruction: {
+    ...stage.instruction,
+    ...curriculumLessons[stage.id],
+    ...(curriculumLessons[stage.id] ? { learningObjective: curriculumLessons[stage.id].learningObjectives[0] } : {}),
+    ...(stage.id === 'js-17-grand-capstone-app' ? { brief: existingProjectBriefs[stage.id].summary } : {}),
+  },
+  playground: { ...stage.playground, ...(curriculumChecks[stage.id] ? { tasks: curriculumChecks[stage.id] } : {}) },
+  ...(existingProjectBriefs[stage.id] ? { projectBrief: existingProjectBriefs[stage.id] } : {}),
+  ...(stage.id === 'js-17-grand-capstone-app' ? { title: 'Projeto do módulo: Gerenciador de tarefas', category: 'Projeto de módulo', estimatedMinutes: 120 } : {}),
+}));
+jsRoadmapCourse.phases = trainingPhases;
+jsRoadmapCourse.title = 'Formação especializada em JavaScript: do zero ao Master';
+jsRoadmapCourse.description = 'Uma sequência de fundamentos, aplicações no navegador, arquitetura e qualidade, com desafios verificáveis e um projeto ao final de cada módulo.';
 
 // Aliases para compatibilidade
 export const roadmapCourse = jsRoadmapCourse;

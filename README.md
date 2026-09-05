@@ -77,17 +77,31 @@ Structured milestone track taking developers step-by-step from core language fun
 
 ## 📚 Curriculum Breakdown
 
-The platform features a comprehensive, zero-to-advanced curriculum:
+The JavaScript formation follows **10 modules across 4 phases**, progressing from first principles to application architecture, quality, and a final integration project. Every module ends with a **required practical project**. Each lesson pairs explanation and examples with a coding challenge; project briefs add deliverables, implementation milestones, review criteria, and optional extensions.
 
-| Module | Title | Topics Covered |
+| Phase | Modules | Learning outcome |
 | :--- | :--- | :--- |
-| **01** | **Language Fundamentals** | Modern variables (const, let), primitives, scopes, operators & conditionals |
-| **02** | **Functions & Scope** | Function declarations, arrow functions, default parameters, lexical scope |
-| **03** | **Arrays & Data Structures** | Array manipulation, functional methods (map, ilter, educe), objects |
-| **04** | **The DOM & Browser Events** | Node selection, dynamic attribute & class manipulation, event listeners |
-| **05** | **Web APIs & Persistence** | Browser localStorage, JSON serialization, asynchronous timers (setInterval) |
-| **06** | **Asynchronous JavaScript & REST** | Promises, sync/wait, error handling, API communication with etch() |
-| **07** | **OOP & Advanced Patterns** | ES6 Classes, inheritance, private fields, closures & Capstone Project |
+| **01 · First steps** | 1–3 | Validate values, decompose problems into functions, and transform collections. |
+| **02 · Browser applications** | 4–6 | Build interactive interfaces with events, persistence, and asynchronous data. |
+| **03 · Architecture and quality** | 7–9 | Organize state and responsibilities, verify contracts, and reason about performance. |
+| **04 · Master: practical integration** | 10 | Integrate concurrency, accessibility, and resilient persistence in a study dashboard. |
+
+| Module | Topics covered | Required closing project |
+| :--- | :--- | :--- |
+| **01 · Language Fundamentals** | Variables, types, conversion, conditionals, and debugging | Monthly budget simulator |
+| **02 · Functions & Problem Solving** | Parameters, return values, scope, decomposition, and composition | Rock, Paper, Scissors in the console |
+| **03 · Loops, Arrays & Objects** | Iteration, object properties, collection methods, and aggregation | Shopping cart calculation engine |
+| **04 · DOM, Events & Projects** | HTML/CSS foundations, DOM rendering, forms, and interactive state | Browser calculator |
+| **05 · Web APIs & Persistence** | JSON, localStorage, timers, and invalid stored data | Persistent study journal |
+| **06 · Asynchronous JavaScript & APIs** | Promises, async/await, fetch, HTTP responses, and loading/error states | API data dashboard |
+| **07 · OOP & Advanced Topics** | Classes, closures, encapsulation, and application state | Task manager |
+| **08 · Application Architecture** | Pure functions, immutable reducers, dependency injection, and subscriptions | Observable state library |
+| **09 · Quality & Performance** | Behavioral contracts, tests, Map/Set, search, and debounce | Catalog search engine |
+| **10 · Professional Integration & Master** | Concurrent requests, keyboard access, persistence recovery, and integration | Study dashboard |
+
+Projects are part of the sequential path: passing the current stage's checks unlocks the next stage. Automated checks verify the required behaviors; learners also review each project's rubric, explain their decisions, and try additional cases. Optional extensions do not block progression. “Master” names the final integration phase, without implying a certification or guaranteed expertise.
+
+The curriculum focuses on **JavaScript in the browser**. The detailed [formation guide (Português)](docs/formacao-javascript.md) explains the study method, project completion criteria, scope, and how existing progress is preserved when the curriculum expands.
 
 ---
 

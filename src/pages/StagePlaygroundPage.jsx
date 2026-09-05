@@ -22,6 +22,9 @@ import {
 import CodecademyEditor from '../components/CodecademyEditor';
 import InteractiveConsole from '../components/InteractiveConsole';
 import ValidationChecklist from '../components/ValidationChecklist';
+import KnowledgeCheck from '../components/KnowledgeCheck';
+import ModuleProject from '../components/ModuleProject';
+import { buildPreview, loadPreview, withTimeout } from '../lib/playgroundRuntime';
 import { useProgress } from '../context/ProgressContext';
 import { jsRoadmapCourse } from '../data/roadmapData';
 
@@ -38,22 +41,54 @@ function InlineText({ text, inverted = false }) {
   });
 }
 
-function LessonContent({ lessonText, objective, onContinue }) {
+function LessonContent({ stageId, lessonText, objective, objectives = [], knowledgeCheck, brief, practicePrompt, onContinue, moduleProject, onViewProject }) {
   const [copiedIndex, setCopiedIndex] = useState(null);
   const chunks = (lessonText || '').split(/```/g);
 
   const copySnippet = async (code, index) => {
-    await navigator.clipboard.writeText(code);
-    setCopiedIndex(index);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedIndex(index);
+    } catch {
+      setCopiedIndex('error');
+    }
     setTimeout(() => setCopiedIndex(null), 1500);
   };
 
   return (
     <div className="space-y-6">
+      {copiedIndex === 'error' && <p role="status" className="text-xs text-amber-700">Não foi possível copiar. Selecione o trecho e copie manualmente.</p>}
+      {brief && (
+        <div className="border border-neutral-200 bg-[#f7f7f5] p-4">
+          <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-neutral-500"><BookOpen className="h-3.5 w-3.5" /> Em poucas palavras</p>
+          <p className="mt-2 text-xs leading-5 text-neutral-700"><InlineText text={brief} /></p>
+        </div>
+      )}
+
       <div className="border-l-2 border-neutral-950 pl-4">
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-500">Objetivo da aula</p>
         <p className="mt-2 text-sm font-semibold leading-6 text-neutral-950">{objective}</p>
+        {objectives.length > 0 && <ul className="mt-3 space-y-2 text-xs leading-5 text-neutral-600">{objectives.map((item) => <li key={item} className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-700" /><span>{item}</span></li>)}</ul>}
       </div>
+
+      <details className="rounded-lg border border-neutral-200 p-3">
+        <summary className="cursor-pointer text-xs font-semibold text-neutral-600">Como estudar esta aula</summary>
+      <div className="mt-3">
+        <h3 className="mb-3 text-sm font-black tracking-[-0.02em] text-neutral-950">Como aproveitar esta aula</h3>
+        <ol className="grid gap-2">
+          {[
+            'Leia a explicação e tente dizer o conceito com suas próprias palavras.',
+            'Preveja o resultado do exemplo e teste uma expressão no console.',
+            'Resolva o desafio por partes e execute o código após cada pequena alteração.',
+          ].map((step, index) => (
+            <li key={step} className="flex gap-3 border border-neutral-200 p-3 text-xs leading-5 text-neutral-600">
+              <span className="grid h-5 w-5 shrink-0 place-items-center bg-neutral-950 font-mono text-[9px] font-bold text-white">{index + 1}</span>
+              <span>{step}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+      </details>
 
       {chunks.map((chunk, chunkIndex) => {
         if (!chunk.trim()) return null;
@@ -88,6 +123,7 @@ function LessonContent({ lessonText, objective, onContinue }) {
                 {body.map((line, lineIndex) => {
                   const list = line.trim().match(/^(\d+)\.\s+(.*)/);
                   if (list) return <div key={lineIndex} className="flex gap-3 border-t border-neutral-200 py-2.5 first:border-t-0"><span className="font-mono text-[9px] font-bold text-neutral-400">{String(list[1]).padStart(2, '0')}</span><p><InlineText text={list[2]} /></p></div>;
+                  if (/^[-*]\s/.test(line.trim())) return <p key={lineIndex} className="flex gap-2"><span aria-hidden="true">•</span><span><InlineText text={line.trim().replace(/^[-*]\s/, '')} /></span></p>;
                   return <p key={lineIndex}><InlineText text={line.trim()} /></p>;
                 })}
               </div>
@@ -96,35 +132,81 @@ function LessonContent({ lessonText, objective, onContinue }) {
         });
       })}
 
+      {knowledgeCheck && <KnowledgeCheck stageId={stageId} question={knowledgeCheck} />}
+
+      <div className="rounded-lg border border-neutral-300 p-4">
+        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-neutral-500">Antes de ir ao desafio</p>
+        <p className="mt-2 text-xs leading-5 text-neutral-700">Confirme que você entende o objetivo acima e sabe onde o conceito aparece no exemplo. Não precisa memorizar: use a aula e as fontes como consulta.</p>
+      </div>
+
       <button type="button" onClick={onContinue} className="flex h-11 w-full items-center justify-center gap-2 bg-neutral-950 px-4 text-xs font-bold text-white transition hover:bg-neutral-700">
         Ir para o desafio <ArrowRight className="h-4 w-4" />
       </button>
+      {practicePrompt && <details className="rounded-lg border border-neutral-200 p-4"><summary className="cursor-pointer text-xs font-bold">Desafio extra da lição</summary><p className="mt-3 text-xs leading-5 text-neutral-700"><InlineText text={practicePrompt} /></p><p className="mt-2 text-xs leading-5 text-neutral-500">Depois de validar o desafio principal, experimente esta extensão. Ela não é exigida pelos testes de conclusão.</p></details>}
+      {moduleProject && <section className="rounded-lg border border-emerald-200 bg-emerald-50 p-4"><h3 className="text-xs font-bold text-emerald-900">Ao final deste módulo: seu projeto</h3><p className="mt-2 text-sm font-semibold">{moduleProject.title.replace(/^[^\p{L}\p{N}]+/u, '')}</p><p className="mt-2 text-xs leading-5 text-neutral-600">{moduleProject.projectBrief?.summary}</p><button type="button" onClick={onViewProject} className="mt-3 inline-flex min-h-11 items-center gap-2 text-xs font-bold text-emerald-800">Ver plano do projeto <ArrowRight className="h-4 w-4" /></button></section>}
     </div>
   );
 }
 
+function runtimeGuidance(message) {
+  if (/Unexpected token|Unexpected identifier|missing|unterminated|SyntaxError/i.test(message)) {
+    return 'Há um erro de sintaxe. Confira parênteses, chaves, aspas e vírgulas perto da linha indicada. Corrija um símbolo de cada vez e execute novamente.';
+  }
+  if (/is not defined|ReferenceError/i.test(message)) {
+    return 'Um nome foi usado antes de ser declarado ou está escrito de forma diferente. Compare maiúsculas, minúsculas e o escopo da variável ou função.';
+  }
+  if (/is not a function|TypeError/i.test(message)) {
+    return 'O valor usado não possui essa operação. Confira o tipo do valor, o nome do método e se o elemento ou objeto realmente foi encontrado.';
+  }
+  return 'Leia a mensagem, abra a linha indicada no editor e verifique o valor usado nessa operação. Depois execute novamente para confirmar a correção.';
+}
+
+function normalizeRuntimeError(error) {
+  const rawMessage = typeof error === 'string' ? error : error?.message || 'Erro desconhecido no script.';
+  const stack = typeof error === 'object' ? String(error?.stack || '') : '';
+  const sourceMatch = stack.match(/devpath-user\.js:(\d+):(\d+)/) || String(error?.filename || '').match(/devpath-user\.js:(\d+):(\d+)/);
+  const line = Number(error?.line || sourceMatch?.[1]) || undefined;
+  const column = Number(error?.column || sourceMatch?.[2]) || undefined;
+  return {
+    message: rawMessage.replace(/^Uncaught\s*/i, ''),
+    location: { file: 'script.js', line, column },
+    action: runtimeGuidance(rawMessage),
+  };
+}
+
 function StageWorkspace({ stage }) {
   const navigate = useNavigate();
-  const { isStageCompleted, completeStage, getStageFiles, saveStageFiles, resetStageFiles } = useProgress();
+  const { isStageCompleted, isStageUnlocked, completeStage, getStageFiles, saveStageFiles, resetStageFiles, visitStage, storageError } = useProgress();
 
   const [searchParams] = useSearchParams();
   const [files, setFiles] = useState(() => stage ? getStageFiles(stage.id) : {});
   const [activeFile, setActiveFile] = useState(() => stage?.playground.activeFile || 'script.js');
   const [mobileTab, setMobileTab] = useState('lesson');
-  const [instructionTab, setInstructionTab] = useState(() => searchParams.get('tab') || 'lesson');
+  const [instructionTab, setInstructionTab] = useState(() => ['lesson', 'challenge', 'project', 'resources'].includes(searchParams.get('tab')) ? searchParams.get('tab') : 'lesson');
   const [studyPanelMode, setStudyPanelMode] = useState('normal');
   const [studyPanelSide, setStudyPanelSide] = useState('left');
   const [studyPanelWidth, setStudyPanelWidth] = useState(420);
   const [taskResults, setTaskResults] = useState({});
+  const [runtimeError, setRuntimeError] = useState(null);
+  const [focusLocation, setFocusLocation] = useState(null);
+  const [, setEditorDiagnostics] = useState({});
   const [isRunning, setIsRunning] = useState(false);
+  const [previewIsStale, setPreviewIsStale] = useState(false);
+  const [runningTask, setRunningTask] = useState(null);
   // Uma etapa salva como concluída não deve aparecer validada antes de o aluno
   // executar o código desta sessão.
   const [allPassed, setAllPassed] = useState(false);
   const [logs, setLogs] = useState(() => [{ time: new Date().toLocaleTimeString(), level: 'info', msg: 'Ambiente pronto. Leia a aula e execute o desafio quando estiver preparado.' }]);
   const [showSuccess, setShowSuccess] = useState(false);
   const iframeRef = useRef(null);
-  const capturedLogsRef = useRef([]);
+  const runVersionRef = useRef(0);
+  const runningRef = useRef(false);
   const workspaceRef = useRef(null);
+
+  useEffect(() => {
+    visitStage(stage.id);
+    return () => { runVersionRef.current += 1; };
+  }, [stage.id, visitStage]);
 
   const tasks = useMemo(() => {
     if (!stage) return [];
@@ -137,59 +219,61 @@ function StageWorkspace({ stage }) {
     }));
   }, [stage]);
 
-  const generatePreview = useCallback(() => {
-    const html = files['index.html'] || '';
-    const css = files['style.css'] || '';
-    const js = files['script.js'] || '';
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    const bodyContent = (bodyMatch?.[1] || html).replace(/<script[^>]*src=["']script\.js["'][^>]*><\/script>/gi, '');
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style><script>
-      window.__scriptErrors = [];
-      window.addEventListener('error', function(event) {
-        window.__scriptErrors.push(event.message || 'Erro no script');
-        window.parent.postMessage({ type: 'CONSOLE_LOG', level: 'error', message: event.message || 'Erro no script' }, '*');
-      });
-      ['log', 'warn', 'error'].forEach(function(level) {
-        const original = console[level];
-        console[level] = function(...args) {
-          original.apply(console, args);
-          window.parent.postMessage({ type: 'CONSOLE_LOG', level, raw: args.length === 1 ? args[0] : args, message: args.map(function(value) { try { return typeof value === 'object' ? JSON.stringify(value) : String(value); } catch { return String(value); } }).join(' ') }, '*');
-        };
-      });
-    </script></head><body>${bodyContent}<script>try {
-      ${js}
-      window.__getVar = function(name) { try { return eval(name); } catch { return undefined; } };
-    } catch (error) { window.__scriptErrors.push(error.message); console.error(error.message); }</script></body></html>`;
-  }, [files]);
+  const generatePreview = useCallback(() => buildPreview(files, stage.id), [files, stage.id]);
+  const initialPreviewRef = useRef(generatePreview);
 
   useEffect(() => {
-    if (iframeRef.current) iframeRef.current.srcdoc = generatePreview();
-  }, [generatePreview]);
+    if (iframeRef.current) iframeRef.current.srcdoc = initialPreviewRef.current();
+  }, []);
 
   useEffect(() => {
     const handleMessage = (event) => {
+      if (event.source !== iframeRef.current?.contentWindow) return;
+      if (event.data?.type === 'SCRIPT_ERROR') {
+        setRuntimeError(normalizeRuntimeError(event.data.error));
+        setAllPassed(false);
+        return;
+      }
       if (event.data?.type !== 'CONSOLE_LOG') return;
       const nextLog = { time: new Date().toLocaleTimeString(), level: event.data.level || 'log', msg: event.data.message, raw: event.data.raw };
       setLogs((current) => [...current.slice(-35), nextLog]);
-      capturedLogsRef.current.push(event.data.message);
+
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   const handleCodeChange = (code) => {
+    if (files[activeFile] === code) return;
+    runVersionRef.current += 1;
+    runningRef.current = false;
+    setIsRunning(false);
+    setRunningTask(null);
     const updated = { ...files, [activeFile]: code };
     setFiles(updated);
     saveStageFiles(stage.id, updated);
+    setAllPassed(false);
+    setTaskResults({});
+    setRuntimeError(null);
+    setShowSuccess(false);
+    setPreviewIsStale(true);
+    setEditorDiagnostics((current) => ({ ...current, [activeFile]: [] }));
   };
 
   const handleReset = () => {
     if (!window.confirm('Restaurar o código inicial? As alterações desta aula serão perdidas.')) return;
+    runVersionRef.current += 1;
+    runningRef.current = false;
+    setIsRunning(false);
+    setRunningTask(null);
     resetStageFiles(stage.id);
     setFiles(stage.playground.files);
     setActiveFile(stage.playground.activeFile || 'script.js');
     setTaskResults({});
+    setRuntimeError(null);
+    setEditorDiagnostics({});
     setAllPassed(false);
+    setPreviewIsStale(true);
     setLogs((current) => [...current, { time: new Date().toLocaleTimeString(), level: 'warn', msg: 'Código restaurado para a versão inicial.' }]);
   };
 
@@ -219,71 +303,105 @@ function StageWorkspace({ stage }) {
   };
 
   const handleEvaluate = (expression) => {
+    if (runningRef.current) return;
     try {
-      const result = iframeRef.current?.contentWindow?.eval(expression);
+      const win = iframeRef.current?.contentWindow;
+      const result = win?.__evaluate ? win.__evaluate(expression) : win?.eval(expression);
       setLogs((current) => [...current, { time: new Date().toLocaleTimeString(), level: 'input', msg: expression }, { time: new Date().toLocaleTimeString(), level: 'output', raw: result, msg: String(result) }]);
     } catch (error) {
       setLogs((current) => [...current, { time: new Date().toLocaleTimeString(), level: 'error', msg: error.message }]);
     }
   };
 
-  const handleRun = useCallback(() => {
-    setIsRunning(true);
-    setTaskResults({});
-    capturedLogsRef.current = [];
+  const handleRun = useCallback(async () => {
+    if (runningRef.current) return;
     const iframe = iframeRef.current;
-    if (!iframe) { setIsRunning(false); return; }
-    iframe.srcdoc = generatePreview();
-
-    setTimeout(() => {
+    if (!iframe) return;
+    const version = ++runVersionRef.current;
+    const isCurrent = () => version === runVersionRef.current;
+    runningRef.current = true;
+    setIsRunning(true);
+    setAllPassed(false);
+    setTaskResults({});
+    setRuntimeError(null);
+    setShowSuccess(false);
+    setPreviewIsStale(false);
+    setLogs([{ time: new Date().toLocaleTimeString(), level: 'info', msg: 'Nova execução. A validar os requisitos…' }]);
+    try {
+      await loadPreview(iframe, generatePreview());
+      if (!isCurrent()) return;
       const doc = iframe.contentDocument;
-      const win = iframe.contentWindow || {};
+      const win = iframe.contentWindow;
       const helpers = {
-        source: files['script.js'] || '',
+        source: (files['script.js'] || '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, ''),
         files,
         getVar: (name) => {
-          try {
-            const value = win.__getVar?.(name);
-            if (value !== undefined) return value;
-            if (win[name] !== undefined) return win[name];
-            return win.eval?.(`typeof ${name} !== 'undefined' ? ${name} : undefined`);
-          } catch { return undefined; }
+          try { const value = win.__getVar?.(name); return value === undefined ? win[name] : value; } catch { return undefined; }
         },
-        logs: capturedLogsRef.current,
+        logs: win.__consoleLogs || [],
+        consoleCalls: win.__consoleCalls || [],
         errors: win.__scriptErrors || [],
       };
-
       if (helpers.errors.length) {
-        const firstTask = tasks[0];
-        setTaskResults({ [firstTask?.id || 'syntax-error']: { pass: false, tip: `Erro no script: ${helpers.errors[0]}. Verifique a sintaxe no editor.` } });
-        setAllPassed(false);
-        setIsRunning(false);
+        setRuntimeError(normalizeRuntimeError(helpers.errors[0]));
         return;
       }
-
       const results = {};
-      let passed = tasks.length > 0;
-      tasks.forEach((task) => {
+      for (const [index, task] of tasks.entries()) {
+        if (!isCurrent()) return;
+        setRunningTask({ index: index + 1, total: tasks.length });
         try {
-          const result = task.check(doc, win, helpers);
-          results[task.id] = result?.pass ? { pass: true } : { pass: false, tip: result?.tip || 'Revise este requisito e tente novamente.' };
-          if (!result?.pass) passed = false;
+          const result = await withTimeout(Promise.resolve().then(() => task.check(doc, win, helpers)));
+          if (!isCurrent()) return;
+          results[task.id] = result?.pass
+            ? { ...result, pass: true }
+            : { ...result, pass: false, tip: result?.tip || 'Revise este requisito e tente novamente.' };
         } catch (error) {
-          results[task.id] = { pass: false, tip: `Erro ao validar: ${error.message}` };
-          passed = false;
+          if (!isCurrent()) return;
+          results[task.id] = { pass: false, tip: error.message };
         }
-      });
-      setTaskResults(results);
+        setTaskResults({ ...results });
+      }
+      if (!isCurrent()) return;
+      const runtimeErrors = win.__scriptErrors || [];
+      const passed = tasks.length > 0 && runtimeErrors.length === 0 && tasks.every((task) => results[task.id]?.pass);
+      if (runtimeErrors.length) setRuntimeError(normalizeRuntimeError(runtimeErrors[0]));
       setAllPassed(passed);
-      setIsRunning(false);
-      setInstructionTab('challenge');
+      const passedCount = Object.values(results).filter((result) => result.pass).length;
+      setLogs((current) => [...current.slice(-99), { time: new Date().toLocaleTimeString(), level: passed ? 'info' : 'warn', msg: `${passedCount}/${tasks.length} requisitos atendidos. ${passed ? 'Desafio conclu?do!' : 'Veja as orienta??es na aba Desafio.'}` }]);
       if (passed) {
         completeStage(stage.id);
         setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 2800);
       }
-    }, 500);
+    } catch (error) {
+      if (isCurrent()) setRuntimeError(normalizeRuntimeError(error));
+    } finally {
+      if (isCurrent()) {
+        runningRef.current = false;
+        setIsRunning(false);
+        setRunningTask(null);
+        setInstructionTab('challenge');
+        setMobileTab('lesson');
+      }
+    }
   }, [completeStage, files, generatePreview, stage.id, tasks]);
+
+  useEffect(() => {
+    if (!showSuccess) return;
+    const timeout = setTimeout(() => setShowSuccess(false), 2200);
+    return () => clearTimeout(timeout);
+  }, [showSuccess]);
+
+  const openCodeLocation = (location) => {
+    if (!location?.file || files[location.file] == null) return;
+    setActiveFile(location.file);
+    setFocusLocation({ ...location, requestId: Date.now() });
+    setMobileTab('code');
+  };
+
+  const handleDiagnosticsChange = useCallback((file, markers) => {
+    setEditorDiagnostics((current) => ({ ...current, [file]: markers }));
+  }, []);
 
   useEffect(() => {
     const handleShortcut = (event) => {
@@ -300,13 +418,15 @@ function StageWorkspace({ stage }) {
   const previousStage = jsRoadmapCourse.stages[currentIndex - 1];
   const nextStage = jsRoadmapCourse.stages[currentIndex + 1];
   const module = jsRoadmapCourse.modules.find((item) => item.id === stage.moduleId);
+  const moduleProject = jsRoadmapCourse.stages.find((item) => item.id === module?.projectStageId);
+  const pendingProjectStages = jsRoadmapCourse.stages.filter((item) => item.moduleId === stage.moduleId && item.id !== moduleProject?.id && !isStageCompleted(item.id)).length;
   const completedCount = jsRoadmapCourse.stages.filter((item) => isStageCompleted(item.id)).length;
   const courseProgress = Math.round((completedCount / jsRoadmapCourse.stages.length) * 100);
 
   return (
-    <div className="relative flex h-[calc(100vh-64px)] flex-col overflow-hidden bg-white text-neutral-950">
+    <div id="main-content" tabIndex={-1} className="relative flex h-[calc(100dvh-64px)] flex-col overflow-hidden bg-white text-neutral-950">
       {showSuccess && (
-        <div className="pointer-events-none absolute inset-0 z-[60] grid place-items-center bg-black/35 p-4 backdrop-blur-[2px]">
+        <div role="status" aria-live="polite" className="pointer-events-none absolute inset-0 z-[60] grid place-items-center bg-black/35 p-4 backdrop-blur-[2px]">
           <div className="flex items-center gap-4 border border-neutral-950 bg-white p-5 shadow-2xl">
             <span className="grid h-10 w-10 place-items-center bg-neutral-950 text-white"><Check className="h-5 w-5" /></span>
             <div><h2 className="text-sm font-black">Aula concluída</h2><p className="mt-1 text-xs text-neutral-500">Todos os testes passaram. Bom trabalho.</p></div>
@@ -321,7 +441,7 @@ function StageWorkspace({ stage }) {
         </div>
         <div className="flex flex-1 items-center gap-3 lg:max-w-xs">
           <span className="font-mono text-[9px] text-neutral-500">{String(stage.stepNumber).padStart(2, '0')}</span>
-          <div className="h-1 flex-1 bg-neutral-200"><div className="h-full bg-neutral-950" style={{ width: `${courseProgress}%` }} /></div>
+          <div role="progressbar" aria-label="Progresso da trilha" aria-valuenow={courseProgress} aria-valuemin={0} aria-valuemax={100} className="h-1 flex-1 bg-neutral-200"><div className="h-full bg-emerald-700" style={{ width: `${courseProgress}%` }} /></div>
           <span className="font-mono text-[9px] text-neutral-500">{courseProgress}%</span>
         </div>
         <div className="flex items-center border border-neutral-300 bg-white">
@@ -354,17 +474,31 @@ function StageWorkspace({ stage }) {
               {studyPanelMode !== 'minimized' && <button type="button" onClick={() => setStudyPanelMode((mode) => mode === 'maximized' ? 'normal' : 'maximized')} className="grid h-full w-9 place-items-center text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950" title={studyPanelMode === 'maximized' ? 'Restaurar tamanho' : 'Maximizar zona de aula'} aria-label={studyPanelMode === 'maximized' ? 'Restaurar tamanho' : 'Maximizar zona de aula'}>{studyPanelMode === 'maximized' ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}</button>}
             </div>
           </div>
-          <div className={studyPanelMode === 'minimized' ? 'hidden' : 'contents'}>
-          <div className="grid h-11 shrink-0 grid-cols-3 border-b border-neutral-200 bg-[#f7f7f5] p-1">
+          <div className={studyPanelMode === 'minimized' ? 'contents lg:hidden' : 'contents'}>
+          <div className="grid h-11 shrink-0 grid-cols-4 border-b border-neutral-200 bg-[#f7f7f5] p-1">
             {[
               { id: 'lesson', label: '1. Aula' },
               { id: 'challenge', label: '2. Desafio' },
-              { id: 'resources', label: '3. Fontes' },
-            ].map((tab) => <button key={tab.id} type="button" onClick={() => setInstructionTab(tab.id)} className={`text-[9px] font-bold uppercase tracking-wider transition ${instructionTab === tab.id ? 'bg-neutral-950 text-white' : 'text-neutral-500 hover:text-neutral-950'}`}>{tab.label}</button>)}
+              { id: 'project', label: '3. Projeto' },
+              { id: 'resources', label: '4. Fontes' },
+            ].map((tab) => <button key={tab.id} type="button" aria-pressed={instructionTab === tab.id} onClick={() => setInstructionTab(tab.id)} className={`text-[9px] font-bold uppercase tracking-wider transition ${instructionTab === tab.id ? 'bg-neutral-950 text-white' : 'text-neutral-500 hover:text-neutral-950'}`}>{tab.label}</button>)}
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-5 select-text">
-            {instructionTab === 'lesson' && <LessonContent lessonText={stage.instruction.deepLesson} objective={stage.instruction.learningObjective} onContinue={() => setInstructionTab('challenge')} />}
+            {instructionTab === 'lesson' && (
+              <LessonContent
+                stageId={stage.id}
+                objectives={stage.instruction.learningObjectives}
+                knowledgeCheck={stage.instruction.knowledgeCheck}
+                lessonText={stage.instruction.deepLesson}
+                objective={stage.instruction.learningObjective}
+                brief={stage.instruction.brief}
+                practicePrompt={stage.instruction.practicePrompt || stage.instruction.taskDescription}
+                onContinue={() => setInstructionTab('challenge')}
+                moduleProject={moduleProject}
+                onViewProject={() => setInstructionTab('project')}
+              />
+            )}
             {instructionTab === 'challenge' && (
               <div>
                 <div className="mb-5">
@@ -374,18 +508,34 @@ function StageWorkspace({ stage }) {
                 </div>
                 <div className="mb-4 border border-neutral-200 bg-[#f7f7f5] p-3 text-xs leading-5 text-neutral-600">
                   <strong className="block text-[10px] uppercase tracking-wider text-neutral-950">Como avançar</strong>
-                  Leia cada requisito, implemente no editor e use <strong>Executar código</strong>. Se algo falhar, verá uma indicação específica e poderá abrir uma dica em cada passo.
+                  Leia cada requisito, implemente no editor e use <strong>Executar código</strong>. Se algo falhar, você verá o que aconteceu, onde verificar e qual é o próximo passo.
                 </div>
-                <ValidationChecklist tasks={tasks} taskResults={taskResults} allPassed={allPassed} onNextStage={() => nextStage && navigate(`/playground/${nextStage.id}`)} hasNextStage={Boolean(nextStage)} />
+                {stage.instruction.challengeExamples?.length > 0 && <div className="mb-5 overflow-hidden rounded-lg border border-neutral-200"><h3 className="bg-neutral-100 px-3 py-2 text-xs font-bold">Exemplos para testar</h3><div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b border-neutral-200"><th scope="col" className="p-3 font-semibold">Entrada / ação</th><th scope="col" className="p-3 font-semibold">Resultado esperado</th></tr></thead><tbody>{stage.instruction.challengeExamples.map((example, index) => <tr key={index} className="border-b border-neutral-100 last:border-0"><td className="p-3 align-top"><code className="whitespace-pre-wrap break-words text-[11px]">{example.input}</code></td><td className="p-3 align-top"><code className="whitespace-pre-wrap break-words text-[11px]">{example.output}</code>{example.explanation && <p className="mt-2 text-neutral-500">{example.explanation}</p>}</td></tr>)}</tbody></table></div></div>}
+                {runningTask && <p role="status" className="mb-3 rounded-lg bg-emerald-50 p-3 text-xs font-medium text-emerald-800">A verificar requisito {runningTask.index} de {runningTask.total}…</p>}
+                <ValidationChecklist
+                  tasks={tasks}
+                  taskResults={taskResults}
+                  allPassed={allPassed}
+                  files={files}
+                  runtimeError={runtimeError}
+                  guideSteps={stage.instruction.progressiveHints || []}
+                  onOpenLocation={openCodeLocation}
+                  onNextStage={() => nextStage && navigate(`/playground/${nextStage.id}`)}
+                  hasNextStage={Boolean(nextStage)}
+                />
               </div>
             )}
+            {instructionTab === 'project' && <ModuleProject project={moduleProject} currentStageId={stage.id} unlocked={moduleProject && isStageUnlocked(moduleProject.id)} completed={moduleProject && isStageCompleted(moduleProject.id)} pendingCount={pendingProjectStages} onStart={() => setInstructionTab('challenge')} />}
             {instructionTab === 'resources' && (
               <div>
-                <div className="mb-5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-500"><Library className="h-3.5 w-3.5" /> Para aprofundar</div>
+                <div className="mb-5">
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-500"><Library className="h-3.5 w-3.5" /> Para aprofundar</div>
+                  <p className="mt-2 text-xs leading-5 text-neutral-500">Leituras externas selecionadas para esta etapa. O conteúdo completo abre na fonte original.</p>
+                </div>
                 <div className="space-y-3">
                   {stage.instruction.curatedLinks?.map((resource) => (
-                    <a key={resource.url} href={resource.url} target="_blank" rel="noreferrer" className="group block border border-neutral-200 p-4 transition hover:border-neutral-950">
-                      <div className="flex items-start justify-between gap-3"><span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400">{resource.source}</span><ExternalLink className="h-3.5 w-3.5 text-neutral-400 transition group-hover:text-neutral-950" /></div>
+                    <a key={resource.url} href={resource.url} target="_blank" rel="noreferrer" className={`group block border p-4 transition hover:border-neutral-950 ${resource.source === 'The Odin Project' ? 'border-neutral-950 bg-[#f7f7f5]' : 'border-neutral-200'}`}>
+                      <div className="flex items-start justify-between gap-3"><span className={`text-[9px] font-bold uppercase tracking-wider ${resource.source === 'The Odin Project' ? 'text-neutral-950' : 'text-neutral-400'}`}>{resource.source}{resource.source === 'The Odin Project' ? ' · Currículo aberto' : ''}</span><ExternalLink className="h-3.5 w-3.5 text-neutral-400 transition group-hover:text-neutral-950" /></div>
                       <h3 className="mt-2 text-sm font-bold">{resource.title}</h3><p className="mt-2 text-xs leading-5 text-neutral-500">{resource.summary}</p>
                     </a>
                   ))}
@@ -398,11 +548,11 @@ function StageWorkspace({ stage }) {
         </aside>
 
         <section className={`${mobileTab === 'code' ? 'flex' : 'hidden'} min-h-0 min-w-0 flex-1 lg:order-2 lg:flex`}>
-          <CodecademyEditor files={files} activeFile={activeFile} onFileChange={setActiveFile} onCodeChange={handleCodeChange} onResetFile={handleReset} onRun={handleRun} isRunning={isRunning} allPassed={allPassed} />
+          <CodecademyEditor stageId={stage.id} storageError={storageError} files={files} activeFile={activeFile} onFileChange={setActiveFile} onCodeChange={handleCodeChange} onResetFile={handleReset} onRun={handleRun} isRunning={isRunning} allPassed={allPassed} focusLocation={focusLocation} onDiagnosticsChange={handleDiagnosticsChange} />
         </section>
 
         <section className={`${mobileTab === 'output' ? 'flex' : 'hidden'} min-h-0 min-w-0 lg:order-2 lg:flex lg:w-[28%] lg:flex-none`}>
-          <InteractiveConsole logs={logs} onClearLogs={() => setLogs([])} onEvaluate={handleEvaluate} iframeRef={iframeRef} />
+          <InteractiveConsole logs={logs} onClearLogs={() => setLogs([])} onEvaluate={handleEvaluate} iframeRef={iframeRef} isStale={previewIsStale} isRunning={isRunning} onReload={handleRun} />
         </section>
       </div>
     </div>

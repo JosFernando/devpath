@@ -13,25 +13,26 @@ function FormattedValue({ value }) {
   return <span>{String(value)}</span>;
 }
 
-export default function InteractiveConsole({ logs = [], onClearLogs, onEvaluate, iframeRef }) {
+export default function InteractiveConsole({ logs = [], onClearLogs, onEvaluate, iframeRef, isStale, isRunning, onReload }) {
   const [activeTab, setActiveTab] = useState('terminal');
   const [viewportMode, setViewportMode] = useState('desktop');
   const [replInput, setReplInput] = useState('');
   const logsEndRef = useRef(null);
 
   useEffect(() => {
-    if (activeTab === 'terminal') logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (activeTab === 'terminal') logsEndRef.current?.scrollIntoView({ block: 'nearest' });
   }, [logs, activeTab]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const command = replInput.trim();
-    if (!command) return;
+    if (!command || isRunning) return;
     onEvaluate?.(command);
     setReplInput('');
   };
 
   const reloadPreview = () => {
+    if (onReload) { onReload(); return; }
     if (iframeRef?.current) {
       const source = iframeRef.current.getAttribute('srcdoc') || '';
       iframeRef.current.removeAttribute('srcdoc');
@@ -63,6 +64,8 @@ export default function InteractiveConsole({ logs = [], onClearLogs, onEvaluate,
         )}
       </div>
 
+      {isStale && <p role="status" className="border-b border-amber-900/50 bg-amber-950/30 px-3 py-2 text-[11px] leading-5 text-amber-200">Código alterado. Use Executar código para atualizar o resultado.</p>}
+
       <div className={`min-h-0 flex-1 flex-col ${activeTab === 'terminal' ? 'flex' : 'hidden'}`}>
         <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-2 font-mono text-[9px] uppercase tracking-wider text-neutral-600">
           <span>JavaScript runtime</span><span>Logs em tempo real</span>
@@ -92,7 +95,7 @@ export default function InteractiveConsole({ logs = [], onClearLogs, onEvaluate,
 
         <form onSubmit={handleSubmit} className="flex h-11 shrink-0 items-center gap-2 border-t border-neutral-800 bg-[#101010] px-3">
           <ChevronRight className="h-3.5 w-3.5 text-white" />
-          <input value={replInput} onChange={(event) => setReplInput(event.target.value)} placeholder="Digite uma expressão…" className="min-w-0 flex-1 border-0 bg-transparent font-mono text-[11px] text-white outline-none placeholder:text-neutral-700" aria-label="Expressão JavaScript" />
+          <input value={replInput} disabled={isRunning} onChange={(event) => setReplInput(event.target.value)} placeholder={isRunning ? 'Aguarde os testes…' : 'Digite uma expressão…'} className="min-w-0 flex-1 border-0 bg-transparent font-mono text-[11px] text-white outline-none placeholder:text-neutral-500" aria-label="Expressão JavaScript" />
           <button type="submit" className="border border-neutral-700 px-2 py-1 font-mono text-[9px] text-neutral-400 transition hover:border-neutral-400 hover:text-white">Enter</button>
         </form>
       </div>
@@ -104,7 +107,7 @@ export default function InteractiveConsole({ logs = [], onClearLogs, onEvaluate,
         </div>
         <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-neutral-900 p-2">
           <div className={`h-full overflow-hidden bg-white transition-[width] ${viewportMode === 'mobile' ? 'w-[375px] max-w-full' : 'w-full'}`}>
-            <iframe ref={iframeRef} title="Preview do desafio" className="h-full w-full border-0 bg-white" sandbox="allow-scripts allow-modals allow-same-origin" />
+            <iframe ref={iframeRef} title="Preview do desafio" className={`h-full w-full border-0 bg-white ${isRunning ? 'pointer-events-none' : ''}`} sandbox="allow-scripts allow-same-origin" />
           </div>
         </div>
       </div>
